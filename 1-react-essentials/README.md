@@ -4,7 +4,7 @@
 
 ## Note
 
-### Cara Menentukan Kapan Sebuah File Harus Dipisah
+- ## Cara Menentukan Kapan Sebuah File Harus Dipisah
 
 1. **Pisahkan Setiap Bagian Fitur**  
    Setiap fitur yang memiliki logika sendiri atau bisa digunakan ulang sebaiknya
