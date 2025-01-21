@@ -59,3 +59,5 @@
    - **React.memo**
    - **useMemo**
    - **useCallback**
+
+- ## Cara mengirim props
