@@ -1,10 +1,11 @@
 # React Essentials - Components, JSX, Props, State & More
 
-![React Logo](image.png) ![Code Example](image-1.png)
+![React Essentials](./src/assets/readme/image.png)
+![React Essentials](./src/assets/readme/image-1.png)
 
 ## Note
 
-- ## Cara Menentukan Kapan Sebuah File Harus Dipisah
+### Cara Menentukan Kapan Sebuah File Harus Dipisah
 
 1. **Pisahkan Setiap Bagian Fitur**  
    Setiap fitur yang memiliki logika sendiri atau bisa digunakan ulang sebaiknya
@@ -60,4 +61,148 @@
    - **useMemo**
    - **useCallback**
 
-- ## Cara mengirim props
+---
+
+### Props: Cara Passing, Default Props, dan Forward Props `{...props}`
+
+#### **Cara Passing Props**
+
+Selain cara biasa untuk menetapkan dan mengambil props, ada beberapa metode tambahan
+yang bisa digunakan untuk mengelola props lebih efisien.
+
+##### **Passing a Single Prop Object**
+
+Jika data sudah terstruktur sebagai objek JavaScript, kita bisa meneruskannya sebagai
+satu nilai props daripada membaginya menjadi beberapa props.
+
+```jsx
+<CoreConcept
+  title={CORE_CONCEPTS[0].title}
+  description={CORE_CONCEPTS[0].description}
+  image={CORE_CONCEPTS[0].image} />
+
+// Atau dengan spread operator:
+<CoreConcept {...CORE_CONCEPTS[0]} />
+
+// Atau bisa juga seperti ini:
+<CoreConcept concept={CORE_CONCEPTS[0]} />
+```
+
+Di dalam komponen `CoreConcept`, kita bisa mengaksesnya seperti ini:
+
+```jsx
+export default function CoreConcept({ concept }) {
+  // Gunakan concept.title, concept.description, dll.
+  // Atau destrukturisasi objek: const { title, description, image } = concept;
+}
+```
+
+##### **Grouping Received Props Into a Single Object**
+
+Kita juga bisa mengelompokkan beberapa props ke dalam satu objek dengan "Rest
+Property" syntax:
+
+```jsx
+export default function CoreConcept({ ...concept }) {
+  // ...concept mengelompokkan beberapa nilai menjadi satu objek
+  // Gunakan concept.title, concept.description, dll.
+}
+```
+
+#### **Default Prop Values**
+
+Terkadang, komponen bisa memiliki props opsional. Misalnya, komponen `Button` dengan
+prop `type`:
+
+```jsx
+<Button type="submit" caption="My Button" />
+<Button caption="My Button" />
+```
+
+Untuk menetapkan nilai default jika prop tidak diberikan, kita bisa menggunakan
+default values dalam object destructuring:
+
+```jsx
+export default function Button({ caption, type = 'submit' }) {
+  // caption tidak memiliki default value, type memiliki default "submit"
+}
+```
+
+#### **Contoh Button dengan Props & Forward Props**
+
+Berikut contoh kode lengkap untuk komponen `Button`:
+
+```jsx
+export default function Button({ children, mode = 'filled', Icon, ...props }) {
+  let cssClasses = `button ${mode}-button`;
+
+  if (Icon) {
+    cssClasses += ' icon-button';
+  }
+
+  return (
+    <button className={cssClasses} {...props}>
+      {Icon && (
+        <span className="button-icon">
+          <Icon />
+        </span>
+      )}
+      <span>{children}</span>
+    </button>
+  );
+}
+```
+
+Dan berikut contoh penggunaannya:
+
+```jsx
+<section>
+  <h2>Filled Button (Default)</h2>
+  <Button>Default</Button>
+  <Button mode="filled">Filled (Default)</Button>
+</section>
+```
+
+![Output](./src/assets/readme/image-2.png)
+
+```jsx
+<section>
+  <h2>Button with Outline</h2>
+  <Button mode="outline">Outline</Button>
+</section>
+```
+
+![Output](./src/assets/readme/image-3.png)
+
+```jsx
+<section>
+  <h2>Text-only Button</h2>
+  <Button mode="text">Text</Button>
+</section>
+```
+
+![Output](./src/assets/readme/image-4.png)
+
+```jsx
+<section>
+  <h2>Button with Icon</h2>
+  <Button Icon={HomeIcon}>Home</Button>
+  <Button Icon={PlusIcon} mode="text">
+    Add
+  </Button>
+</section>
+```
+
+![Output](./src/assets/readme/image-5.png)
+
+```jsx
+<section>
+  <h2>Buttons Should Support Any Props</h2>
+  <Button mode="filled" disabled>
+    Disabled
+  </Button>
+  <Button onClick={() => console.log('Clicked!')}>Click me</Button>
+</section>
+```
+
+![Output](./src/assets/readme/image-6.png)

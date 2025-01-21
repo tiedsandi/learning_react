@@ -1,7 +1,7 @@
 export default function Tabs({
   children,
   buttons,
-  ButtonContainer,
+  ButtonContainer = 'div',
   // buttonContainer
 }) {
   // const ButtonCont = buttonContainer
