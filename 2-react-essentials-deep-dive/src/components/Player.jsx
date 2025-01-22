@@ -9,7 +9,7 @@ export default function Player({ initialName, symbol, isActive }) {
   }
 
   function handleChange(event) {
-    console.log(event);
+    // console.log(event);
 
     setPlayerName(event.target.value);
   }
