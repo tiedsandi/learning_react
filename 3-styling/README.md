@@ -2,10 +2,14 @@
 
 ## Vanila CSS: Advantage & Disadvantages
 
-```
-import style from './Header.module.css';
+- Module css, 'it should name class not tag
 
-<header className={style.header}>
+```
+import classes from './Header.module.css';
+
+<header className={classes.paragraph}>
+<header className={isTrue ? classes.paragraph : undefined}>
+<header className={`${classes.paragraph}`}>
 ```
 
 ### single line vanila css
