@@ -1,8 +1,22 @@
-# React + Vite
+# Styling React
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Vanila CSS: Advantage & Disadvantages
 
-Currently, two official plugins are available:
+```
+import style from './Header.module.css';
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+<header className={style.header}>
+```
+
+### single line vanila css
+
+- Example
+
+```
+<p style={{
+  color: 'red',
+  textAlign: 'center'
+}}>Some text</p>
+```
+
+- Advantages & Disadvantages
