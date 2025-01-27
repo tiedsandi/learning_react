@@ -19,4 +19,32 @@ import style from './Header.module.css';
 }}>Some text</p>
 ```
 
+###### do
+
+```
+<input
+  type='email'
+  style={{
+    color: emailNotValid ? 'red' : '#cacaca',
+  }} />
+```
+
+```
+<input
+  type="password"
+  style={{
+    backgroundColor: emailNotValid && 'red',
+  }} />
+```
+
+```
+ <label className={`label ${emailNotValid && 'invalid'}`}>Email</label>
+```
+
+###### don't
+
+```
+<label className={emailNotValid && 'invalid'}>Email</label>
+```
+
 - Advantages & Disadvantages
