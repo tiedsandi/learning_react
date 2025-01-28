@@ -209,3 +209,10 @@ import Input from './Input';
 />
 
 ```
+
+## Tailwind v.4
+
+**Src :**
+
+- https://tailwindcss.com/docs/theme
+- https://v3.tailwindcss.com/docs/installation
