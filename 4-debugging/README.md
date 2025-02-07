@@ -9,3 +9,5 @@
 # ![alt text](image-1.png)
 
 - strict mode
+
+- using dev tools extensions
