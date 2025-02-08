@@ -35,6 +35,42 @@ export default function Player() {
 
 ```
 
+- contoh lain
+
+```
+import React, { useState } from "react";
+
+function App() {
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  function handleFileChange(event) {
+    const file = event.target.files[0]; // Mengambil file pertama yang dipilih
+    setSelectedFile(file);
+  }
+
+  return (
+    <div id="app">
+      <p>Please select an image</p>
+      <p>
+        <input
+          data-testid="file-picker"
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
+        <button onClick={() => document.querySelector("input[type='file']").click()}>
+          Pick Image
+        </button>
+      </p>
+      {selectedFile && <p>Selected File: {selectedFile.name}</p>}
+    </div>
+  );
+}
+
+export default App;
+
+```
+
 ###### using ref
 
 ```
@@ -61,3 +97,32 @@ export default function Player() {
 }
 
 ```
+
+- contoh lain
+
+```
+import React from 'react'
+
+function App() {
+    const filePicker = React.useRef();
+
+    function handleStartPickImage() {
+    filePicker.current.click();
+  }
+
+  return (
+    <div id="app">
+      <p>Please select an image</p>
+      <p>
+        <input data-testid="file-picker" type="file" accept="image/*" ref={filePicker} />
+        <button  onClick={handleStartPickImage}>Pick Image</button>
+      </p>
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+### perbedaan ref dan state
