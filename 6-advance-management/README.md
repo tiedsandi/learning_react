@@ -49,3 +49,22 @@ import { use } from 'react';
 const cartCtx = use(CartContext);
 
 ```
+
+- cara lain menggunakan context
+
+```
+<CartContext.Consumer >
+{(cartCtx)=> {
+  const totalPrice = cartCtx.items.total
+
+  return(
+    <div>
+
+    </div>
+  )
+}
+
+}
+</CartContext.Consumer >
+
+```
