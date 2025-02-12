@@ -33,3 +33,21 @@ function App() {
   //...rescode
 
 ```
+
+###### perhatikan depedency pada useEffect, dependecny tidak menggunakan fungsi
+
+karena fungsi dengan isi yang sama tidak sama
+
+```
+function Hello1(){
+  console.log('hello')
+}
+
+function Hello2(){
+  console.log('hello')
+}
+
+// Hello1 === Hello2 return false
+```
+
+untuk solusinya menggunakan useCallBack
