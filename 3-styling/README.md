@@ -1,143 +1,101 @@
-# Styling React
+# Styling di React
 
-## Vanila CSS: Advantage & Disadvantages
+## 1. Vanilla CSS
 
-- Module css, 'it should name class not tag
+### 📖 Dokumentasi: [Dokumentasi](#https://developer.mozilla.org/en-US/docs/Web/CSS)
 
-```
+### 📌 Kelebihan & Kekurangan
+
+| ✅ Kelebihan                               | ❌ Kekurangan                           |
+| ------------------------------------------ | --------------------------------------- |
+| Sederhana dan banyak digunakan             | Style global dapat menyebabkan konflik  |
+| Cocok untuk proyek kecil                   | Membutuhkan konvensi penamaan agar rapi |
+| Bisa menggunakan CSS Modules untuk isolasi |                                         |
+
+### 🚀 Cara Penggunaan
+
+#### 1. Menggunakan CSS Modules (Direkomendasikan)
+
+```jsx
+// Header.module.css
+.paragraph {
+  font-size: 16px;
+  color: #333;
+}
+
+// Header.jsx
 import classes from './Header.module.css';
 
-<header className={classes.paragraph}>
-<header className={isTrue ? classes.paragraph : undefined}>
-<header className={`${classes.paragraph}`}>
+<header className={classes.paragraph}>Teks Contoh</header>
 ```
 
-### single line vanila css
+#### 2. Menggunakan File CSS Eksternal
 
-- Example
-
-```
-<p style={{
-  color: 'red',
-  textAlign: 'center'
-}}>Some text</p>
+```css
+/* header.css */
+.header {
+  font-size: 20px;
+}
 ```
 
-###### do
+```jsx
+// Header.jsx
+import './header.css';
 
-```
-<input
-  type='email'
-  style={{
-    color: emailNotValid ? 'red' : '#cacaca',
-  }} />
-```
-
-```
-<input
-  type="password"
-  style={{
-    backgroundColor: emailNotValid && 'red',
-  }} />
+export default function Header() {
+  return <header className="header">Teks Contoh</header>;
+}
 ```
 
-```
- <label className={`label ${emailNotValid && 'invalid'}`}>Email</label>
+#### 3. Inline CSS (Gunakan dengan Hati-hati)
+
+```jsx
+<p style={{ color: 'red', textAlign: 'center' }}>Teks contoh</p>
 ```
 
-###### don't
+#### ✅ Dianjurkan:
 
+```jsx
+<input type='email' style={{ color: emailNotValid ? 'red' : '#cacaca' }} />
+<label className={`label ${emailNotValid && 'invalid'}`}>Email</label>
 ```
+
+#### ❌ Jangan:
+
+```jsx
 <label className={emailNotValid && 'invalid'}>Email</label>
 ```
 
-- Advantages & Disadvantages
+---
 
-## Styled Components
+## 2. Styled Components
 
-- how to use styled components
+### 📖 Dokumentasi: [Styled Components](https://styled-components.com/docs)
 
-- how to use dynamic & conditional styling
+### 📌 Kelebihan & Kekurangan
 
-- how to pseudo selector, nested rules, and media queries
+| ✅ Kelebihan                                       | ❌ Kekurangan             |
+| -------------------------------------------------- | ------------------------- |
+| Style terisolasi, tidak ada konflik class          | Ukuran bundle lebih besar |
+| Styling dinamis dengan props                       | Butuh waktu untuk belajar |
+| Mendukung nested, pseudo-selector, dan media query |                           |
 
-```
-import { styled } from 'styled-components';
+### 🚀 Cara Penggunaan
 
-const ControlContainer = styled.div``
+#### 1. Instalasi
 
-const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  color: ${({ $invalid }) => ($invalid ? '#f87171' : '#6b7280')};
-`
-
-const Input = styled.input`
-  width: 100%
-  color: ${({ $invalid }) => ($invalid ? '#ef4444' : '#374151')};
-  border: 1px solid ${({ $invalid }) => ($invalid ? '#f73f3f' : 'transparent')};
-  border-radius: 0.25rem;
-`
-
-
-<Label $invalid={emailNotValid}>Email</Label>
-
-<Input
-  $invalid={emailNotValid}
-  type="email"
-  onChange={(event) => handleInputChange('email', event.target.value)}
-/>
-
-
-const Button = styled.button`
-  padding: 1rem 2rem;
-  background-color: #f0b322;
-
-  &:hover {
-    background-color: #f0920e;
-  }
-`;
-
-const StyledHeader = styled.header`
-  display: flex;
-\  & img {
-  }
-
-  & h1 {
-    font-size: 1.5rem;
-  }
-
-  & p {
-  }
-
-  @media (min-width: 768px) {
-    & {
-      margin-bottom: 4rem;
-    }
-
-    & h1 {
-      font-size: 2.25rem;
-    }
-  }
-`;
-
-
+```sh
+npm install styled-components
 ```
 
-- Reuseable Components
+#### 2. Penggunaan Dasar
 
-```
+```jsx
 import styled from 'styled-components';
 
 const Button = styled.button`
   padding: 1rem 2rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  border-radius: 0.25rem;
-  color: #1f2937;
   background-color: #f0b322;
-  border-radius: 6px;
-  border: none;
 
   &:hover {
     background-color: #f0920e;
@@ -145,74 +103,93 @@ const Button = styled.button`
 `;
 
 export default Button;
-
-
 ```
 
-**other files**
-
-```
+```jsx
+// Penggunaan dalam file lain
 import Button from './Button';
-
-<Button onClick={handleLogin}>Sign In</Button>
+<Button onClick={handleLogin}>Masuk</Button>;
 ```
 
-- Reuseable Components & Component Combinations
+#### 3. Styling Dinamis & Kondisional
 
-```
-
-import styled from 'styled-components';
-
+```jsx
 const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: ${({ $invalid }) => ($invalid ? '#f87171' : '#6b7280')};
 `;
+<Label $invalid={emailNotValid}>Email</Label>;
+```
 
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem 1rem;
-  line-height: 1.5;
-  background-color: ${({ $invalid }) => ($invalid ? '#fed2d2' : '#d1d5db')};
-  color: ${({ $invalid }) => ($invalid ? '#ef4444' : '#374151')};
-  border: 1px solid ${({ $invalid }) => ($invalid ? '#f73f3f' : 'transparent')};
-  border-radius: 0.25rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+#### 4. Pseudo-Selector, Nested Rules, Media Queries
+
+```jsx
+const StyledHeader = styled.header`
+  display: flex;
+
+  & h1 {
+    font-size: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    margin-bottom: 4rem;
+
+    & h1 {
+      font-size: 2.25rem;
+    }
+  }
 `;
-
-export default function CustomInput({ label, invalid, ...props }) {
-  return (
-    <p>
-      <Label $invalid={invalid}>{label}</Label>
-      <Input $invalid={invalid} {...props} />
-    </p>
-  );
-}
-
 ```
 
-**other files**
+---
 
+## 3. Tailwind CSS
+
+### 📖 Dokumentasi:
+
+- [Tailwind CSS Docs](https://tailwindcss.com/docs/installation/using-vite)
+- [Tailwind Theme](https://tailwindcss.com/docs/theme)
+
+### 📌 Kelebihan & Kekurangan
+
+| ✅ Kelebihan                       | ❌ Kekurangan                          |
+| ---------------------------------- | -------------------------------------- |
+| Utility-first, styling lebih cepat | Membutuhkan pembelajaran class utility |
+| Ukuran bundle kecil                | Bisa membuat HTML terlihat ramai       |
+| Desain responsif lebih mudah       |                                        |
+
+### 🚀 Cara Penggunaan
+
+#### 1. Instalasi
+
+```sh
+npm install -D tailwindcss
+npx tailwindcss init
 ```
 
-import Input from './Input';
+#### 2. Konfigurasi (tailwind.config.js)
 
-<Input
-  label="Email"
-  invalid={emailNotValid}
-  type="email"
-  onChange={(event) => handleInputChange('email', event.target.value)}
-/>
-
+```js
+module.exports = {
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
 ```
 
-## Tailwind v.4
+#### 3. Menggunakan Kelas Tailwind
 
-**Src :**
+```jsx
+<button className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-md">
+  Klik Saya
+</button>
+```
 
-- https://tailwindcss.com/docs/theme
-- https://v3.tailwindcss.com/docs/installation
+#### 4. Styling Kondisional
+
+```jsx
+<label className={`text-sm ${emailNotValid ? 'text-red-500' : 'text-gray-600'}`}>
+  Email
+</label>
+```
