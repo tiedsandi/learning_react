@@ -1,139 +1,120 @@
-# Advance Management
+# Advanced State Management
 
-### prop drilling
+## 1. Prop Drilling & Context API
 
-### React's Context API
+Ketika state perlu digunakan oleh banyak komponen, **prop drilling** bisa membuat
+kode sulit dikelola. Solusinya adalah **Context API**.
 
-biasanya disimpan di folder store
+### a. Membuat dan Menyediakan Context
 
-- cara membuat dan providing
-
-```
-// folder store/nama-context.jsx
+```jsx
+// store/CartContext.jsx
 import { createContext } from 'react';
+export const CartContext = createContext({ items: [] });
+```
 
-export const CartContext = createContext({
-  items: [],
-});
+Gunakan `CartContext.Provider` di level tertinggi aplikasi:
 
-
-//App.js atau top level file
-<CartContext.Provider>
-  ... rest code
+```jsx
+<CartContext.Provider value={{ items: [] }}>
+  {/* Komponen lainnya */}
 </CartContext.Provider>
 ```
 
-- cara memanggil atau menggunakannya
+### b. Menggunakan Context
 
+```jsx
+import { useContext } from 'react';
+import { CartContext } from '../store/CartContext';
+
+const cartCtx = useContext(CartContext);
+console.log(cartCtx.items);
 ```
+
+Atau dengan `Context.Consumer`:
+
+```jsx
+<CartContext.Consumer>
+  {({ items }) => <div>Total Items: {items.length}</div>}
+</CartContext.Consumer>
+```
+
+## 2. Menggunakan Context dengan State
+
+### a. Membuat Context dengan `useState`
+
+```jsx
 import { createContext, useState } from 'react';
-import { DUMMY_PRODUCTS } from '../dummy-products';
+export const CartContext = createContext();
 
-export const CartContext = createContext({
-  items: [],
-  addItemToCart: () => {},
-  updateItemQuantity: () => {},
-});
+export default function CartProvider({ children }) {
+  const [cart, setCart] = useState([]);
 
-export default function CartContextProvider({ children }) {
-  const [shoppingCart, setShoppingCart] = useState({
-    items: [],
-  });
+  const addItem = (item) => setCart((prev) => [...prev, item]);
 
-  function handleAddItemToCart(id) {
-    setShoppingCart((prevShoppingCart) => {
-      const updatedItems = [...prevShoppingCart.items];
+  return (
+    <CartContext.Provider value={{ cart, addItem }}>{children}</CartContext.Provider>
+  );
+}
+```
 
-      const existingCartItemIndex = updatedItems.findIndex(
-        (cartItem) => cartItem.id === id
-      );
-      const existingCartItem = updatedItems[existingCartItemIndex];
+### b. Menggunakan `useContext`
 
-      if (existingCartItem) {
-        const updatedItem = {
-          ...existingCartItem,
-          quantity: existingCartItem.quantity + 1,
-        };
-        updatedItems[existingCartItemIndex] = updatedItem;
-      } else {
-        const product = DUMMY_PRODUCTS.find((product) => product.id === id);
-        updatedItems.push({
-          id: id,
-          name: product.title,
-          price: product.price,
-          quantity: 1,
-        });
-      }
+```jsx
+import { useContext } from 'react';
+import { CartContext } from '../store/CartContext';
 
-      return {
-        items: updatedItems,
-      };
-    });
+const { cart, addItem } = useContext(CartContext);
+addItem({ id: 1, name: 'Product' });
+```
+
+## 3. Mengelola State Kompleks dengan `useReducer`
+
+Ketika state semakin kompleks, gunakan **useReducer** untuk pengelolaan yang lebih
+terstruktur.
+
+### a. Membuat Reducer
+
+```jsx
+import { createContext, useReducer } from 'react';
+export const CartContext = createContext();
+
+const initialState = { items: [] };
+
+function cartReducer(state, action) {
+  switch (action.type) {
+    case 'ADD_ITEM':
+      return { items: [...state.items, action.payload] };
+    case 'REMOVE_ITEM':
+      return { items: state.items.filter((item) => item.id !== action.payload) };
+    default:
+      return state;
   }
-
-  function handleUpdateCartItemQuantity(productId, amount) {
-    setShoppingCart((prevShoppingCart) => {
-      const updatedItems = [...prevShoppingCart.items];
-      const updatedItemIndex = updatedItems.findIndex(
-        (item) => item.id === productId
-      );
-
-      const updatedItem = {
-        ...updatedItems[updatedItemIndex],
-      };
-
-      updatedItem.quantity += amount;
-
-      if (updatedItem.quantity <= 0) {
-        updatedItems.splice(updatedItemIndex, 1);
-      } else {
-        updatedItems[updatedItemIndex] = updatedItem;
-      }
-
-      return {
-        items: updatedItems,
-      };
-    });
-  }
-
-  const ctxValue = {
-    items: shoppingCart.items,
-    addItemToCart: handleAddItemToCart,
-    updateItemQuantity: handleUpdateCartItemQuantity,
-  };
-
-  return <CartContext.Provider value={ctxValue}>{children}</CartContext.Provider>;
 }
 
-```
+export default function CartProvider({ children }) {
+  const [state, dispatch] = useReducer(cartReducer, initialState);
 
-import useContext bisa dengan use
-
-```
-import { use } from 'react';
-
-const cartCtx = use(CartContext);
-const {items} = use(CartContext);
-
-```
-
-- cara lain menggunakan context
-
-```
-<CartContext.Consumer >
-{(cartCtx)=> {
-  const totalPrice = cartCtx.items.total
-
-  return(
-    <div>
-
-    </div>
-  )
+  return (
+    <CartContext.Provider value={{ state, dispatch }}>
+      {children}
+    </CartContext.Provider>
+  );
 }
-
-}
-</CartContext.Consumer >
-
 ```
 
-### use Reducer
+### b. Menggunakan Reducer
+
+```jsx
+import { useContext } from 'react';
+import { CartContext } from '../store/CartContext';
+
+const { state, dispatch } = useContext(CartContext);
+dispatch({ type: 'ADD_ITEM', payload: { id: 1, name: 'Product' } });
+```
+
+## 4. Kesimpulan
+
+- **Context API** menghindari **prop drilling**.
+- **useState** cocok untuk state sederhana.
+- **useReducer** cocok untuk state kompleks dengan banyak perubahan.
