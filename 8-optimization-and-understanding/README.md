@@ -82,3 +82,8 @@ dengan baik agar tidak menimbulkan overhead yang tidak perlu:
 3. **Hindari `memo()` pada komponen dengan _props_ yang sering berubah**
    - Jika _props_ komponen sering berubah, `memo()` menjadi tidak efektif dan justru
      mengorbankan performa.
+
+## Selain menggunakan memo
+
+> kita bisa membuat komposisi komponen yang cerdas dalam aplikasi, dengan memisahkan
+> antar state tertentu agar state lainnya tidak dirender
