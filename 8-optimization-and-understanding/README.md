@@ -99,7 +99,13 @@ import { useCallback } from 'react';
 const handleDecrement = useCallback(function handleDecrement() {
   setCounter((prevCounter) => prevCounter - 1);
 }, []);
+
+<IconButton icon={MinusIcon} onClick={handleDecrement}>
+  Decrement
+</IconButton>;
 ```
+
+> contoh di atas agar IconButton komponen tidak perlu di render lagi
 
 ## useMemo()
 
@@ -172,4 +178,24 @@ const Counter = memo(function Counter({ initialCount }) {
 });
 
 export default Counter;
+```
+
+## kenapa Key sangat penting saat mengelola state
+
+key dapat membantu untuk mengidentifikasi data, dari pada index lebih baik id, karena
+jika menggunakan index maka yang dilihat urutan, jadi jika ada data yang ditambah
+jika kita memilih suatu data, dan lalu menambahkannya data lagi, yang kepilih adalah
+data diurutannya bukan di valuenya. Oleh karena itu perlu id sebagai penentunya.
+
+```jsx
+{
+  history.map((count, index) => <HistoryItem key={index} count={count} />);
+}
+```
+
+```jsx
+// recomendation using this
+{
+  history.map((count) => <HistoryItem key={count.id} count={count.value} />);
+}
 ```
