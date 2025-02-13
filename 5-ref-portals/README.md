@@ -1,147 +1,183 @@
-# ref portals
+# Refs & Portals dalam React
 
-- apa itu ref?
+## Apa Itu Refs?
 
-- contoh penggunaan
+Refs (references) di React digunakan untuk mengakses elemen DOM secara langsung,
+menyimpan nilai di luar alur rendering normal, serta mengelola API komponen tertentu.
 
-###### two-way-binding
+### 1. Mengakses Elemen DOM dengan Refs
 
-```
-import { useState } from 'react';
+Refs memungkinkan kita untuk mendapatkan referensi langsung ke elemen DOM tanpa
+menggunakan state.
 
-export default function Player() {
-  const [enteredPlayerName, setEnteredPlayerName] = useState(null);
-  const [submitted, setSubmitted] = useState(false);
+#### Contoh:
 
-  function handleChange(event) {
-    setSubmitted(false);
-    setEnteredPlayerName(event.target.value);
-  }
+```jsx
+import { useRef } from 'react';
+
+export default function FocusInput() {
+  const inputRef = useRef();
 
   function handleClick() {
-    setSubmitted(true);
+    inputRef.current.focus(); // Memfokuskan input secara langsung
   }
 
   return (
-    <section id="player">
-      <h2>Welcome {submitted ? enteredPlayerName : 'unknown entity'}</h2>
-      <p>
-        <input type="text" onChange={handleChange} value={enteredPlayerName} />
-        <button onClick={handleClick}>Set Name</button>
-      </p>
-    </section>
-  );
-}
-
-```
-
-- contoh lain
-
-```
-import React, { useState } from "react";
-
-function App() {
-  const [selectedFile, setSelectedFile] = useState(null);
-
-  function handleFileChange(event) {
-    const file = event.target.files[0]; // Mengambil file pertama yang dipilih
-    setSelectedFile(file);
-  }
-
-  return (
-    <div id="app">
-      <p>Please select an image</p>
-      <p>
-        <input
-          data-testid="file-picker"
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-        <button onClick={() => document.querySelector("input[type='file']").click()}>
-          Pick Image
-        </button>
-      </p>
-      {selectedFile && <p>Selected File: {selectedFile.name}</p>}
+    <div>
+      <input ref={inputRef} type="text" placeholder="Type something..." />
+      <button onClick={handleClick}>Focus Input</button>
     </div>
   );
 }
-
-export default App;
-
 ```
 
-###### using ref
+### 2. Mengelola Nilai dengan Refs
 
-```
+Refs bisa digunakan untuk menyimpan nilai tanpa menyebabkan re-render, berbeda dengan
+`useState` yang akan memicu render ulang saat nilainya berubah.
+
+#### Contoh:
+
+```jsx
 import { useRef, useState } from 'react';
 
-export default function Player() {
-  const playerName = useRef();
-
-  const [enteredPlayerName, setEnteredPlayerName] = useState(null);
+export default function Timer() {
+  const countRef = useRef(0);
+  const [count, setCount] = useState(0);
 
   function handleClick() {
-    setEnteredPlayerName(playerName.current.value);
+    countRef.current += 1;
+    console.log('Ref Value:', countRef.current);
+    setCount((prev) => prev + 1);
   }
 
   return (
-    <section id="player">
-      <h2>Welcome {enteredPlayerName ?? 'unknown entity'}</h2>
-      <p>
-        <input ref={playerName} type="text" />
-        <button onClick={handleClick}>Set Name</button>
-      </p>
-    </section>
-  );
-}
-
-```
-
-- contoh lain
-
-```
-import React from 'react'
-
-function App() {
-    const filePicker = React.useRef();
-
-    function handleStartPickImage() {
-    filePicker.current.click();
-  }
-
-  return (
-    <div id="app">
-      <p>Please select an image</p>
-      <p>
-        <input data-testid="file-picker" type="file" accept="image/*" ref={filePicker} />
-        <button  onClick={handleStartPickImage}>Pick Image</button>
-      </p>
+    <div>
+      <p>State Count: {count}</p>
+      <p>Ref Count: {countRef.current}</p>
+      <button onClick={handleClick}>Increment</button>
     </div>
   );
 }
-
-export default App;
-
 ```
 
-### perbedaan ref dan state
+> **Catatan:** Perubahan pada `countRef` tidak menyebabkan komponen re-render,
+> sementara perubahan `count` dengan `useState` akan menyebabkan re-render.
 
-### Ref and Portals
+### 3. Mengekspos API Fungsi dari Komponen
 
-## Catatan
+Refs juga dapat digunakan untuk mengekspos metode dari komponen agar bisa diakses
+oleh komponen lain.
 
+#### Contoh:
+
+```jsx
+import { forwardRef, useImperativeHandle, useRef } from 'react';
+
+const CustomInput = forwardRef((props, ref) => {
+  const inputRef = useRef();
+
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current.focus(),
+    clear: () => (inputRef.current.value = ''),
+  }));
+
+  return <input ref={inputRef} type="text" placeholder="Type here..." />;
+});
+
+export default function Parent() {
+  const inputRef = useRef();
+
+  return (
+    <div>
+      <CustomInput ref={inputRef} />
+      <button onClick={() => inputRef.current.focus()}>Focus</button>
+      <button onClick={() => inputRef.current.clear()}>Clear</button>
+    </div>
+  );
+}
 ```
-<dialog>
-  <h2>You {result}</h2>
-  <p>
-    The target time was <strong>{targetTime} seconds.</strong>
-  </p>
-  <p>
-    You stopped the timer with <strong>X seconds left.</strong>
-  </p>
-  <form method="dialog">
-    <button>Close</button>
-  </form>
-</dialog>
+
+> **Catatan:** `useImperativeHandle` digunakan untuk mengekspos fungsi `focus` dan
+> `clear` dari `CustomInput` ke komponen `Parent`.
+
+---
+
+## Apa Itu Portals?
+
+Portals memungkinkan kita merender elemen ke dalam DOM di luar hierarki komponen
+utama.
+
+### 4. Memisahkan Render DOM dari Struktur JSX dengan Portals
+
+Portals berguna untuk membuat modal, tooltips, dan dropdown yang tetap berada di luar
+hierarki elemen utama.
+
+#### Contoh:
+
+```jsx
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+const modalRoot = document.getElementById('modal-root');
+
+export default function Modal({ children }) {
+  return ReactDOM.createPortal(<div className="modal">{children}</div>, modalRoot);
+}
 ```
+
+Komponen `Modal` ini akan dirender di luar hierarki utama meskipun dipanggil dari
+dalam JSX.
+
+#### Contoh Penggunaan Modal:
+
+```jsx
+import { useState } from 'react';
+import Modal from './Modal';
+
+export default function App() {
+  const [showModal, setShowModal] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setShowModal(true)}>Show Modal</button>
+      {showModal && (
+        <Modal>
+          <div className="modal-content">
+            <h2>Modal Window</h2>
+            <button onClick={() => setShowModal(false)}>Close</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+```
+
+> **Catatan:** Elemen `Modal` akan dirender ke dalam `#modal-root`, yang harus ada di
+> `index.html`:
+
+```html
+<div id="modal-root"></div>
+```
+
+---
+
+## Perbedaan `useRef` dan `useState`
+
+| Fitur             | useRef                                    | useState                       |
+| ----------------- | ----------------------------------------- | ------------------------------ |
+| Penyimpanan Nilai | Menyimpan tanpa menyebabkan re-render     | Menyimpan dan memicu re-render |
+| Akses DOM         | Bisa digunakan untuk mengakses elemen DOM | Tidak bisa                     |
+| Perubahan Nilai   | Tidak menyebabkan re-render               | Menyebabkan re-render          |
+
+---
+
+## Kesimpulan
+
+- `useRef` berguna untuk mengakses elemen DOM dan menyimpan nilai tanpa re-render.
+- `useImperativeHandle` memungkinkan kita mengekspos metode API dari komponen.
+- Portals memungkinkan kita merender elemen di luar hierarki JSX utama.
+
+Dengan memahami Refs & Portals, kita bisa mengelola DOM lebih efisien dan menciptakan
+UI yang lebih fleksibel!
