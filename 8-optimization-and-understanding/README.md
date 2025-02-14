@@ -9,6 +9,23 @@ DOM_ yang baru dengan versi sebelumnya menggunakan _Reconciliation Algorithm_. H
 bagian yang mengalami perubahan yang akan diperbarui ke _Real DOM_. Pendekatan ini
 membuat React lebih efisien dibandingkan manipulasi _DOM_ secara langsung.
 
+### State Batching dalam React
+
+React melakukan _state batching_, yang berarti bahwa beberapa pembaruan state yang
+dipicu dalam satu fungsi yang sama akan digabungkan (_batching_) dan hanya
+menyebabkan satu kali re-render. Contoh:
+
+```jsx
+function handleSetCount(newCount) {
+  setChosenCount(newCount);
+  setChosenCount((prevChosenCount) => prevChosenCount + 1);
+}
+```
+
+Pada kode di atas, meskipun ada dua pemanggilan `setChosenCount`, React hanya akan
+melakukan satu kali render karena kedua pembaruan terjadi dalam satu event loop yang
+sama.
+
 ## Menggunakan memo dari React
 
 `memo()` digunakan untuk mencegah komponen mengalami _re-render_ yang tidak perlu,
@@ -52,12 +69,6 @@ const Counter = memo(function Counter({ initialCount }) {
 });
 
 export default Counter;
-
-//react ^18 bisa langsung tanpa disimpan ke variable baru
-export default  memo(function Counter({ initialCount }) {
-  return <div>Count: {initialCount}</div>;
-});
-
 ```
 
 Dengan `memo()`, komponen `Counter` hanya akan di-_render_ ulang jika `initialCount`
@@ -85,13 +96,14 @@ dengan baik agar tidak menimbulkan overhead yang tidak perlu:
 
 ## Selain menggunakan memo()
 
-> kita bisa membuat komposisi komponen yang cerdas dalam aplikasi, dengan memisahkan
-> antar state tertentu agar state lainnya tidak dirender
+> Kita bisa membuat komposisi komponen yang cerdas dalam aplikasi, dengan memisahkan
+> antar state tertentu agar state lainnya tidak dirender.
 
 ## useCallback()
 
-untuk menghindari render ulang pembuatan suatu fungsi, "digunakan secara bersamaan
-dengan memo()?"
+`useCallback()` digunakan untuk menghindari pembuatan ulang fungsi yang tidak perlu,
+sehingga dapat mencegah _re-render_ berlebih pada komponen yang menggunakan fungsi
+tersebut.
 
 ```jsx
 import { useCallback } from 'react';
@@ -105,12 +117,13 @@ const handleDecrement = useCallback(function handleDecrement() {
 </IconButton>;
 ```
 
-> contoh di atas agar IconButton komponen tidak perlu di render lagi
+> Contoh di atas memastikan `IconButton` tidak perlu di-_render_ ulang setiap kali
+> komponen induk diperbarui.
 
 ## useMemo()
 
-gunakan useMemo hanya untuk jika memiliki fungsi yang misalnya memiliki perhitungan
-kompleks atau logic yang komplke yang ingin dihindari
+Gunakan `useMemo()` untuk menghindari perhitungan ulang fungsi yang kompleks atau
+mahal secara performa.
 
 ```jsx
 import { useMemo } from 'react';
@@ -118,79 +131,19 @@ import { useMemo } from 'react';
 const initialCountIsPrime = useMemo(() => isPrime(initialCount), [initialCount]);
 ```
 
-```jsx
-import { useState, memo, useCallback, useMemo } from 'react';
+## Kenapa Key Sangat Penting Saat Mengelola State di React
 
-import IconButton from '../UI/IconButton.jsx';
-import MinusIcon from '../UI/Icons/MinusIcon.jsx';
-import PlusIcon from '../UI/Icons/PlusIcon.jsx';
-import CounterOutput from './CounterOutput.jsx';
-import { log } from '../../log.js';
+> **Catatan:** Key dapat ditambahkan ke komponen mana saja.
 
-function isPrime(number) {
-  log('Calculating if is prime number', 2, 'other');
-  if (number <= 1) {
-    return false;
-  }
+Key sangat berguna dalam React untuk mengidentifikasi elemen dengan unik, terutama
+saat bekerja dengan daftar. Menggunakan `id` daripada `index` sebagai key adalah
+praktik yang lebih baik karena:
 
-  const limit = Math.sqrt(number);
+- **Memastikan state tidak melompat-lompat** saat daftar diperbarui.
+- **Membantu React mengoptimalkan rendering list** dengan hanya menambahkan atau
+  menghapus elemen yang berubah, bukan merender ulang seluruh daftar.
 
-  for (let i = 2; i <= limit; i++) {
-    if (number % i === 0) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-const Counter = memo(function Counter({ initialCount }) {
-  log('<Counter /> rendered', 1);
-  const initialCountIsPrime = useMemo(() => isPrime(initialCount), [initialCount]);
-
-  const [counter, setCounter] = useState(initialCount);
-
-  const handleDecrement = useCallback(function handleDecrement() {
-    setCounter((prevCounter) => prevCounter - 1);
-  }, []);
-
-  const handleIncrement = useCallback(function handleIncrement() {
-    setCounter((prevCounter) => prevCounter + 1);
-  }, []);
-
-  return (
-    <section className="counter">
-      <p className="counter-info">
-        The initial counter value was <strong>{initialCount}</strong>. It{' '}
-        <strong>is {initialCountIsPrime ? 'a' : 'not a'}</strong> prime number.
-      </p>
-      <p>
-        <IconButton icon={MinusIcon} onClick={handleDecrement}>
-          Decrement
-        </IconButton>
-        <CounterOutput value={counter} />
-        <IconButton icon={PlusIcon} onClick={handleIncrement}>
-          Increment
-        </IconButton>
-      </p>
-    </section>
-  );
-});
-
-export default Counter;
-```
-
-## kenapa Key sangat penting saat mengelola state
-
-> **catatan:** key dapat ditambahkan ke komponen mana saja </br>
-
-key dapat membantu untuk mengidentifikasi data, dari pada index lebih baik id.
-karena:
-
-- Untuk memastikan bahwa state tidak melompat-lompat.
-- Karena key sudah disimpan, alih-alih mencipatkan rendernya kembali, melainakn ini
-  hanya menyisipkan elemen baru di depannya, tanpa ada render lagi. (key membantu
-  react untuk merender list dengan cara yang optimal)
+Contoh penggunaan key yang kurang optimal:
 
 ```jsx
 {
@@ -198,15 +151,21 @@ karena:
 }
 ```
 
+Rekomendasi penggunaan key yang lebih baik:
+
 ```jsx
-// recomendation using this
 {
   history.map((count) => <HistoryItem key={count.id} count={count.value} />);
 }
 ```
 
-- dari pada menggunakan useEffect kita bisa menggunakan key, karena pada react jika
-  nilai key berubah React akan membuang render sebelumnya, dan membuat yang baru.
+### Key vs. useEffect dalam Pengelolaan State
+
+Selain untuk daftar, key juga dapat digunakan untuk memicu re-render ulang komponen.
+Jika key berubah, React akan **menghapus komponen lama (unmount) dan membuat ulang
+yang baru (remount)**, mirip dengan efek dependency dalam `useEffect`.
+
+Contoh penggunaan `useEffect` untuk mengatur ulang state saat `initialCount` berubah:
 
 ```jsx
 // Counter.jsx
@@ -215,6 +174,28 @@ useEffect(() => {
 }, [initialCount]);
 ```
 
+Alternatifnya, kita bisa menggunakan key:
+
 ```jsx
 <Counter key={chosenCount} initialCount={chosenCount} />
 ```
+
+### Kesimpulan
+
+- **Di dalam list**, key membantu React mengidentifikasi elemen yang tetap dan yang
+  perlu diperbarui tanpa merender ulang seluruh daftar.
+- **Di level komponen**, perubahan key menyebabkan React membuang komponen lama dan
+  membuat ulang yang baru, berguna untuk menginisialisasi ulang state tanpa
+  `useEffect`.
+
+## Menggunakan package Million.js untuk Optimasi
+
+Million.js memungkinkan optimasi performa dengan pendekatan _virtualization_.
+
+### Langkah Instalasi
+
+```sh
+npx million@latest
+```
+
+> **Referensi:** [Dokumentasi Million.js](https://million.dev/docs)
