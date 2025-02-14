@@ -71,11 +71,20 @@ import React, { Component } from 'react';
 class Counter extends Component {
   constructor(props) {
     super(props);
-    this.state = { count: 0 };
+    this.state = {
+      count: 0,
+      showCount: false,
+    };
   }
 
   increment = () => {
     this.setState({ count: this.state.count + 1 });
+  };
+
+  toogle = () => {
+    this.setState((curState) => {
+      return { showCount: !curState.showUsers };
+    });
   };
 
   render() {
@@ -83,6 +92,9 @@ class Counter extends Component {
       <div>
         <p>Count: {this.state.count}</p>
         <button onClick={this.increment}>Increment</button>
+        <button onClick={this.toogle.bind(this)}>
+          {this.state.showCount ? 'Hide' : 'Show'} Count
+        </button>
       </div>
     );
   }
