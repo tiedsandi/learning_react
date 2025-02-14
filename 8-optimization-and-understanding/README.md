@@ -182,10 +182,15 @@ export default Counter;
 
 ## kenapa Key sangat penting saat mengelola state
 
-key dapat membantu untuk mengidentifikasi data, dari pada index lebih baik id, karena
-jika menggunakan index maka yang dilihat urutan, jadi jika ada data yang ditambah
-jika kita memilih suatu data, dan lalu menambahkannya data lagi, yang kepilih adalah
-data diurutannya bukan di valuenya. Oleh karena itu perlu id sebagai penentunya.
+> **catatan:** key dapat ditambahkan ke komponen mana saja </br>
+
+key dapat membantu untuk mengidentifikasi data, dari pada index lebih baik id.
+karena:
+
+- Untuk memastikan bahwa state tidak melompat-lompat.
+- Karena key sudah disimpan, alih-alih mencipatkan rendernya kembali, melainakn ini
+  hanya menyisipkan elemen baru di depannya, tanpa ada render lagi. (key membantu
+  react untuk merender list dengan cara yang optimal)
 
 ```jsx
 {
@@ -198,4 +203,18 @@ data diurutannya bukan di valuenya. Oleh karena itu perlu id sebagai penentunya.
 {
   history.map((count) => <HistoryItem key={count.id} count={count.value} />);
 }
+```
+
+- dari pada menggunakan useEffect kita bisa menggunakan key, karena pada react jika
+  nilai key berubah React akan membuang render sebelumnya, dan membuat yang baru.
+
+```jsx
+// Counter.jsx
+useEffect(() => {
+  setCounterChanges([{ value: initialCount, id: Math.random() * 1000 }]);
+}, [initialCount]);
+```
+
+```jsx
+<Counter key={chosenCount} initialCount={chosenCount} />
 ```
