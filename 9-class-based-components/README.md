@@ -1,6 +1,6 @@
 # React Class-Based Components
 
-## What & Why
+## Apa itu Class-Based Components?
 
 React awalnya menggunakan class-based components sebagai cara utama untuk membuat
 komponen sebelum diperkenalkannya Hooks di React 16.8. Meskipun sekarang kebanyakan
@@ -8,34 +8,37 @@ pengembang menggunakan functional components dengan Hooks, memahami class-based
 components tetap penting, terutama untuk menangani kode lama atau memahami konsep
 seperti lifecycle methods dan error boundaries.
 
-**Mengapa menggunakan Class-Based Components?**
+### Mengapa Menggunakan Class-Based Components?
 
 - Memungkinkan penggunaan state dan lifecycle methods sebelum Hooks tersedia.
 - Berguna dalam proyek lama yang masih menggunakan sintaks ini.
-- Mempermudah pemahaman bagaimana React bekerja secara internal.
+- Membantu pemahaman bagaimana React bekerja secara internal.
 - Diperlukan untuk fitur seperti Error Boundaries yang hanya bisa dibuat menggunakan
   class components.
 
 ---
 
-## Working with Class-Based Components
+## Perbedaan Functional Components vs Class-Based Components
 
-#### **Functional Components**
+### **Functional Components**
 
-> Components are regular js functions which return renderable results (typically JSX)
+> Functional components adalah fungsi JavaScript biasa yang mengembalikan elemen yang
+> bisa dirender (biasanya dalam bentuk JSX).
 
 ```jsx
 function Product(props) {
-  return <h2>A Product! </h2>;
+  return <h2>A Product!</h2>;
 }
 ```
 
-#### class-based Components
+### **Class-Based Components**
 
-> components can also be defined as JS classes where a render() method defines the
-> to-be-renderd output
+> Class-based components didefinisikan sebagai kelas JavaScript yang memiliki method
+> `render()` untuk menentukan tampilan yang akan dirender.
 
 ```jsx
+import React, { Component } from 'react';
+
 class Product extends Component {
   render() {
     return <h2>A Product!</h2>;
@@ -47,21 +50,9 @@ Class-based components dibuat dengan mendefinisikan sebuah class yang mewarisi d
 `React.Component`. Setiap class-based component wajib memiliki method `render()` yang
 mengembalikan elemen React.
 
-### Contoh Class Component Sederhana
+---
 
-```jsx
-import React, { Component } from 'react';
-
-class HelloWorld extends Component {
-  render() {
-    return <h1>Hello, World!</h1>;
-  }
-}
-
-export default HelloWorld;
-```
-
-### Menggunakan State dalam Class Components
+## Menggunakan State dalam Class Components
 
 State digunakan untuk menyimpan data dalam komponen yang dapat berubah seiring waktu.
 
@@ -81,7 +72,7 @@ class Counter extends Component {
     this.setState({ count: this.state.count + 1 });
   };
 
-  toogle = () => {
+  toggle = () => {
     this.setState((curState) => {
       return { showCount: !curState.showUsers };
     });
@@ -103,7 +94,9 @@ class Counter extends Component {
 export default Counter;
 ```
 
-### Lifecycle Methods dalam Class Components
+---
+
+## Lifecycle Methods dalam Class Components
 
 Lifecycle methods memungkinkan kita menjalankan kode pada tahap tertentu dalam siklus
 hidup komponen.
@@ -134,12 +127,14 @@ class LifecycleExample extends Component {
 }
 ```
 
-### Menggunakan Context
+---
 
-1. Buat Context
+## Menggunakan Context dalam Class Components
+
+### 1. Membuat Context
 
 ```jsx
-//users-context.js
+// users-context.js
 import React from 'react';
 
 const UsersContext = React.createContext({
@@ -149,10 +144,10 @@ const UsersContext = React.createContext({
 export default UsersContext;
 ```
 
-2. Configure Context
+### 2. Mengonfigurasi Context
 
 ```jsx
-//App.js
+// App.js
 import UserFinder from './components/UserFinder';
 import UsersContext from './store/users-context';
 
@@ -177,13 +172,11 @@ function App() {
 export default App;
 ```
 
-3. Cara menggunakna Conetxt
+### 3. Menggunakan Context dalam Class Component
 
 ```jsx
 import { Fragment, Component } from 'react';
-
 import Users from './Users';
-import classes from './UserFinder.module.css';
 import UsersContext from '../store/users-context';
 
 class UserFinder extends Component {
@@ -196,6 +189,7 @@ class UserFinder extends Component {
       searchTerm: '',
     };
   }
+
   componentDidMount() {
     this.setState({ filteredUsers: this.context.users });
   }
@@ -231,7 +225,7 @@ export default UserFinder;
 
 ---
 
-## Error Boundaries
+## Error Boundaries dalam React
 
 Error Boundaries adalah fitur yang hanya bisa dibuat dengan class components. Mereka
 digunakan untuk menangkap error di dalam komponen anak tanpa menghentikan seluruh
@@ -284,6 +278,91 @@ export default App;
 
 Jika `BuggyComponent` mengalami error, `ErrorBoundary` akan menangkapnya dan
 menampilkan pesan error tanpa merusak seluruh aplikasi.
+
+---
+
+## Try...Catch vs. Error Boundaries
+
+Ketika menangani error di React, ada dua pendekatan utama: **try...catch** (bawaan
+JavaScript) dan **Error Boundaries** (khusus React). Berikut perbedaannya:
+
+### **Try...Catch (JavaScript Standard Error Handling)**
+
+- Digunakan untuk menangani error di dalam blok kode **sinkronous**.
+- Tidak bisa menangkap error dalam **rendering React components**.
+- Cocok digunakan untuk menangani error dalam event handler atau fungsi async.
+
+✅ **Contoh Penggunaan `try...catch` dalam JavaScript**
+
+```javascript
+try {
+  let data = JSON.parse('{"name": "Fachran"'); // Ada kesalahan JSON
+  console.log(data.name);
+} catch (error) {
+  console.error('Terjadi error:', error.message);
+}
+```
+
+---
+
+### **Error Boundaries (React-Specific Error Handling)**
+
+- Hanya bisa digunakan dalam **class components**.
+- Bisa menangkap error dalam **rendering, lifecycle methods, dan children
+  components**.
+- Tidak bisa menangkap error dalam **event handlers**.
+
+✅ **Contoh Implementasi Error Boundary di React**
+
+```jsx
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, info) {
+    console.error('Error caught by boundary:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Oops! Terjadi Kesalahan.</h1>;
+    }
+    return this.props.children;
+  }
+}
+```
+
+Penggunaan:
+
+```jsx
+<ErrorBoundary>
+  <BuggyComponent />
+</ErrorBoundary>
+```
+
+Jika `BuggyComponent` mengalami error, **hanya komponen itu yang terpengaruh**,
+sementara aplikasi tetap berjalan.
+
+---
+
+### 🚀 **Kesimpulan**
+
+| **Fitur**                                 | **Try...Catch** | **Error Boundary**                |
+| ----------------------------------------- | --------------- | --------------------------------- |
+| Bisa menangkap error di event handler     | ✅ Ya           | ❌ Tidak                          |
+| Bisa menangkap error di rendering React   | ❌ Tidak        | ✅ Ya                             |
+| Bisa menangkap error di lifecycle methods | ❌ Tidak        | ✅ Ya                             |
+| Bisa digunakan di functional components   | ✅ Ya           | ❌ Tidak (hanya class components) |
+
+Gunakan **try...catch untuk menangani error dalam event handler atau async
+functions**, dan **Error Boundaries untuk menangkap error dalam rendering komponen
+React** agar UI tidak crash sepenuhnya.
 
 ---
 
