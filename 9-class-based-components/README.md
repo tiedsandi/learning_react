@@ -134,6 +134,101 @@ class LifecycleExample extends Component {
 }
 ```
 
+### Menggunakan Context
+
+1. Buat Context
+
+```jsx
+//users-context.js
+import React from 'react';
+
+const UsersContext = React.createContext({
+  users: [],
+});
+
+export default UsersContext;
+```
+
+2. Configure Context
+
+```jsx
+//App.js
+import UserFinder from './components/UserFinder';
+import UsersContext from './store/users-context';
+
+const DUMMY_USERS = [
+  { id: 'u1', name: 'Fachran' },
+  { id: 'u2', name: 'Sandi' },
+  { id: 'u3', name: 'Joko' },
+];
+
+function App() {
+  const usersContext = {
+    users: DUMMY_USERS,
+  };
+
+  return (
+    <UsersContext.Provider value={usersContext}>
+      <UserFinder />
+    </UsersContext.Provider>
+  );
+}
+
+export default App;
+```
+
+3. Cara menggunakna Conetxt
+
+```jsx
+import { Fragment, Component } from 'react';
+
+import Users from './Users';
+import classes from './UserFinder.module.css';
+import UsersContext from '../store/users-context';
+
+class UserFinder extends Component {
+  static contextType = UsersContext;
+
+  constructor() {
+    super();
+    this.state = {
+      filteredUsers: [],
+      searchTerm: '',
+    };
+  }
+  componentDidMount() {
+    this.setState({ filteredUsers: this.context.users });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.searchTerm !== this.state.searchTerm) {
+      this.setState({
+        filteredUsers: this.context.users.filter((user) =>
+          user.name.includes(this.state.searchTerm)
+        ),
+      });
+    }
+  }
+
+  searchChangeHandler(event) {
+    this.setState({ searchTerm: event.target.value });
+  }
+
+  render() {
+    return (
+      <Fragment>
+        <div className={classes.finder}>
+          <input type="search" onChange={this.searchChangeHandler.bind(this)} />
+        </div>
+        <Users users={this.state.filteredUsers} />
+      </Fragment>
+    );
+  }
+}
+
+export default UserFinder;
+```
+
 ---
 
 ## Error Boundaries
