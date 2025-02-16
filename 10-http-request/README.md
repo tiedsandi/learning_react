@@ -240,8 +240,7 @@ import { useEffect, useState } from 'react';
 
 import Places from './Places.jsx';
 import ErrorPage from './Error.jsx';
-
-// const places = localStorage.getItem('places');
+import { sortPlacesByDistance } from '../loc.js';
 
 export default function AvailablePlaces({ onSelectPlace }) {
   const [isFetching, setIsFetching] = useState(false);
@@ -253,7 +252,7 @@ export default function AvailablePlaces({ onSelectPlace }) {
       setIsFetching(true);
 
       try {
-        const response = await fetch('http://localhost:3000/placess');
+        const response = await fetch('http://localhost:3000/places');
         const resData = await response.json();
 
         if (!response.ok) {
@@ -261,14 +260,21 @@ export default function AvailablePlaces({ onSelectPlace }) {
           throw error;
         }
 
-        setAvailablePlaces(resData.places);
+        navigator.geolocation.getCurrentPosition((position) => {
+          const sortedPlaces = sortPlacesByDistance(
+            resData.places,
+            position.coords.latitude,
+            position.coords.longitude
+          );
+          setAvailablePlaces(sortedPlaces);
+          setIsFetching(false);
+        });
       } catch (error) {
         setError({
           message: error.message || 'Could not fetching data!',
         });
+        setIsFetching(false);
       }
-
-      setIsFetching(false);
     }
 
     fetchPlaces();
@@ -307,5 +313,52 @@ export default function Error({ title, message, onConfirm }) {
       )}
     </div>
   );
+}
+```
+
+4. lebih baik memisahkan fetching
+
+```jsx
+// AvailablePlaces.jsx
+useEffect(() => {
+  async function fetchPlaces() {
+    setIsFetching(true);
+
+    try {
+      const places = await fetchAvailablePlaces();
+
+      navigator.geolocation.getCurrentPosition((position) => {
+        const sortedPlaces = sortPlacesByDistance(
+          places,
+          position.coords.latitude,
+          position.coords.longitude
+        );
+        setAvailablePlaces(sortedPlaces);
+        setIsFetching(false);
+      });
+    } catch (error) {
+      setError({
+        message: error.message || 'Could not fetching data!',
+      });
+      setIsFetching(false);
+    }
+  }
+
+  fetchPlaces();
+}, []);
+```
+
+```jsx
+// http.jsx
+export async function fetchAvailablePlaces() {
+  const response = await fetch('http://localhost:3000/places');
+  const resData = await response.json();
+
+  if (!response.ok) {
+    const error = new Error('Failed to fetch places');
+    throw error;
+  }
+
+  return resData.places;
 }
 ```
