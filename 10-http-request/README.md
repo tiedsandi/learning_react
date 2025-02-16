@@ -40,11 +40,21 @@ import React, { useState, useEffect } from 'react';
 const FetchData = () => {
   const [data, setData] = useState([]);
 
+  // cara pertama
   useEffect(() => {
     fetch('https://jsonplaceholder.typicode.com/posts')
       .then((response) => response.json())
       .then((data) => setData(data));
   }, []);
+
+  // cara kedua (rekomendasi)
+  useEffect(() => {
+    async function fetchData() {
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+      const resData = await response.json();
+      setData(resData);
+    }
+  });
 
   return (
     <div>
