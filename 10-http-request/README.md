@@ -40,21 +40,14 @@ import React, { useState, useEffect } from 'react';
 const FetchData = () => {
   const [data, setData] = useState([]);
 
-  // cara pertama
-  useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/posts')
-      .then((response) => response.json())
-      .then((data) => setData(data));
-  }, []);
-
-  // cara kedua (rekomendasi)
   useEffect(() => {
     async function fetchData() {
       const response = await fetch('https://jsonplaceholder.typicode.com/posts');
       const resData = await response.json();
       setData(resData);
     }
-  });
+    fetchData();
+  }, []);
 
   return (
     <div>
@@ -144,329 +137,87 @@ const sendData = async () => {
 
 ---
 
-## Kesimpulan
+## 5. Best Practices dalam Fetching Data
 
-Dengan memahami cara melakukan HTTP Request di React, kita dapat dengan mudah
-menghubungkan frontend dengan backend untuk mengambil dan mengirim data. Gunakan
-`fetch()` atau pustaka seperti Axios untuk mempermudah pengelolaan data dari API.
+### **1. Menggunakan Loading State**
 
-## Catatan:
-
-1. cara menggunakna loading state
+Loading state membantu memberi feedback ke user saat fetching data:
 
 ```jsx
-// AvailablePlaces.jsx
-import { useEffect, useState } from 'react';
-import Places from './Places.jsx';
-
-export default function AvailablePlaces({ onSelectPlace }) {
-  const [isFetching, setIsFetching] = useState(false);
-  const [availablePlaces, setAvailablePlaces] = useState([]);
-
-  useEffect(() => {
-    async function fetchPlaces() {
-      setIsFetching(true);
-      const response = await fetch('http://localhost:3000/places');
-      const resData = await response.json();
-      setAvailablePlaces(resData.places);
-      setIsFetching(false);
-    }
-
-    fetchPlaces();
-  }, []);
-
-  return (
-    <Places
-      title="Available Places"
-      places={availablePlaces}
-      isLoading={isFetching}
-      loadingText="Fetching place data..."
-      fallbackText="No places available."
-      onSelectPlace={onSelectPlace}
-    />
-  );
-}
-```
-
-```jsx
-// Places.jsx
-export default function Places({
-  title,
-  places,
-  fallbackText,
-  onSelectPlace,
-  isLoading,
-  loadingText,
-}) {
-  console.log(places);
-  return (
-    <section className="places-category">
-      <h2>{title}</h2>
-      {isLoading && <p className="fallback-text">{loadingText}</p>}
-      {!isLoading && places.length === 0 && (
-        <p className="fallback-text">{fallbackText}</p>
-      )}
-      {!isLoading && places.length > 0 && (
-        <ul className="places">
-          {places.map((place) => (
-            <li key={place.id} className="place-item">
-              <button onClick={() => onSelectPlace(place)}>
-                <img
-                  src={`http://localhost:3000/${place.image.src}`}
-                  alt={place.image.alt}
-                />
-                <h3>{place.title}</h3>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
-}
-```
-
-2. sangat wajar dalam fetching dengan 3 state ini
-
-- data fetching
-- loading state
-- error state
-
-3. cara menggunakna error state
-
-```jsx
-// AvailablePlaces.jsx
-import { useEffect, useState } from 'react';
-
-import Places from './Places.jsx';
-import ErrorPage from './Error.jsx';
-import { sortPlacesByDistance } from '../loc.js';
-
-export default function AvailablePlaces({ onSelectPlace }) {
-  const [isFetching, setIsFetching] = useState(false);
-  const [availablePlaces, setAvailablePlaces] = useState([]);
-  const [error, setError] = useState();
-
-  useEffect(() => {
-    async function fetchPlaces() {
-      setIsFetching(true);
-
-      try {
-        const response = await fetch('http://localhost:3000/places');
-        const resData = await response.json();
-
-        if (!response.ok) {
-          const error = new Error('Failed to fetch places');
-          throw error;
-        }
-
-        navigator.geolocation.getCurrentPosition((position) => {
-          const sortedPlaces = sortPlacesByDistance(
-            resData.places,
-            position.coords.latitude,
-            position.coords.longitude
-          );
-          setAvailablePlaces(sortedPlaces);
-          setIsFetching(false);
-        });
-      } catch (error) {
-        setError({
-          message: error.message || 'Could not fetching data!',
-        });
-        setIsFetching(false);
-      }
-    }
-
-    fetchPlaces();
-  }, []);
-
-  if (error) {
-    return <ErrorPage title="An error occurred!" message={error.message} />;
-  }
-
-  return (
-    <Places
-      title="Available Places"
-      places={availablePlaces}
-      isLoading={isFetching}
-      loadingText="Fetching place data..."
-      fallbackText="No places available."
-      onSelectPlace={onSelectPlace}
-    />
-  );
-}
-```
-
-```jsx
-// Error.jsx
-export default function Error({ title, message, onConfirm }) {
-  return (
-    <div className="error">
-      <h2>{title}</h2>
-      <p>{message}</p>
-      {onConfirm && (
-        <div id="confirmation-actions">
-          <button onClick={onConfirm} className="button">
-            Okay
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-```
-
-4. lebih baik memisahkan fetching
-
-```jsx
-// AvailablePlaces.jsx
+const [isLoading, setIsLoading] = useState(false);
 useEffect(() => {
-  async function fetchPlaces() {
-    setIsFetching(true);
-
-    try {
-      const places = await fetchAvailablePlaces();
-
-      navigator.geolocation.getCurrentPosition((position) => {
-        const sortedPlaces = sortPlacesByDistance(
-          places,
-          position.coords.latitude,
-          position.coords.longitude
-        );
-        setAvailablePlaces(sortedPlaces);
-        setIsFetching(false);
-      });
-    } catch (error) {
-      setError({
-        message: error.message || 'Could not fetching data!',
-      });
-      setIsFetching(false);
-    }
+  async function fetchData() {
+    setIsLoading(true);
+    const response = await fetch('https://api.example.com/data');
+    const resData = await response.json();
+    setData(resData);
+    setIsLoading(false);
   }
-
-  fetchPlaces();
+  fetchData();
 }, []);
 ```
 
+### **2. Tiga State Utama dalam Fetching Data**
+
+- `data` → Menyimpan hasil request.
+- `loading` → Indikator bahwa data sedang diambil.
+- `error` → Menangani error saat request gagal.
+
+### **3. Menggunakan Error State**
+
+Menangani error dengan memberikan feedback ke user:
+
 ```jsx
-// http.jsx
+const [error, setError] = useState(null);
+useEffect(() => {
+  async function fetchData() {
+    try {
+      const response = await fetch('https://api.example.com/data');
+      if (!response.ok) {
+        throw new Error('Gagal mengambil data');
+      }
+      const resData = await response.json();
+      setData(resData);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+  fetchData();
+}, []);
+```
+
+### **4. Memisahkan Fetching ke File Terpisah**
+
+Agar lebih reusable, pisahkan fungsi fetching:
+
+```javascript
 export async function fetchAvailablePlaces() {
   const response = await fetch('http://localhost:3000/places');
   const resData = await response.json();
-
   if (!response.ok) {
-    const error = new Error('Failed to fetch places');
-    throw error;
+    throw new Error('Failed to fetch places');
   }
-
   return resData.places;
 }
 ```
 
-5. Optimistic
+### **5. Optimistic UI Update**
+
+Memperbarui UI sebelum konfirmasi dari server untuk pengalaman yang lebih responsif:
 
 ```jsx
-import { useRef, useState, useCallback } from 'react';
-
-import Places from './components/Places.jsx';
-import Modal from './components/Modal.jsx';
-import DeleteConfirmation from './components/DeleteConfirmation.jsx';
-import logoImg from './assets/logo.png';
-import AvailablePlaces from './components/AvailablePlaces.jsx';
-import { updateUserPlaces } from './http.js';
-import ErrorPage from './components/Error.jsx';
-
-function App() {
-  const selectedPlace = useRef();
-
-  const [userPlaces, setUserPlaces] = useState([]);
-  const [errorUpdatingPlaces, setErrorUpdatingPlaces] = useState();
-
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-
-  function handleStartRemovePlace(place) {
-    setModalIsOpen(true);
-    selectedPlace.current = place;
-  }
-
-  function handleStopRemovePlace() {
-    setModalIsOpen(false);
-  }
-
-  async function handleSelectPlace(selectedPlace) {
-    // await updateUserPlaces([selectedPlace, ...userPlaces]);
-
-    setUserPlaces((prevPickedPlaces) => {
-      if (!prevPickedPlaces) {
-        prevPickedPlaces = [];
-      }
-      if (prevPickedPlaces.some((place) => place.id === selectedPlace.id)) {
-        return prevPickedPlaces;
-      }
-      return [selectedPlace, ...prevPickedPlaces];
-    });
-
-    try {
-      await updateUserPlaces([selectedPlace, ...userPlaces]);
-    } catch (error) {
-      setUserPlaces(userPlaces);
-      setErrorUpdatingPlaces({
-        message: error.message || 'Failed to update places.',
-      });
-    }
-  }
-
-  const handleRemovePlace = useCallback(async function handleRemovePlace() {
-    setUserPlaces((prevPickedPlaces) =>
-      prevPickedPlaces.filter((place) => place.id !== selectedPlace.current.id)
-    );
-
-    setModalIsOpen(false);
-  }, []);
-
-  function handleError() {
-    setErrorUpdatingPlaces(null);
-  }
-
-  return (
-    <>
-      <Modal open={errorUpdatingPlaces} onClose={handleError}>
-        {errorUpdatingPlaces && (
-          <ErrorPage
-            title="An error occured!"
-            message={errorUpdatingPlaces.message}
-            onConfirm={handleError}
-          />
-        )}
-      </Modal>
-      <Modal open={modalIsOpen} onClose={handleStopRemovePlace}>
-        <DeleteConfirmation
-          onCancel={handleStopRemovePlace}
-          onConfirm={handleRemovePlace}
-        />
-      </Modal>
-
-      <header>
-        <img src={logoImg} alt="Stylized globe" />
-        <h1>PlacePicker</h1>
-        <p>
-          Create your personal collection of places you would like to visit or you
-          have visited.
-        </p>
-      </header>
-      <main>
-        <Places
-          title="I'd like to visit ..."
-          fallbackText="Select the places you would like to visit below."
-          places={userPlaces}
-          onSelectPlace={handleStartRemovePlace}
-        />
-
-        <AvailablePlaces onSelectPlace={handleSelectPlace} />
-      </main>
-    </>
-  );
+setUserPlaces((prevPlaces) => [selectedPlace, ...prevPlaces]);
+try {
+  await updateUserPlaces([selectedPlace, ...userPlaces]);
+} catch (error) {
+  setUserPlaces(userPlaces);
 }
-
-export default App;
 ```
+
+---
+
+## 6. Kesimpulan
+
+Dengan memahami cara melakukan HTTP Request di React, kita dapat dengan mudah
+menghubungkan frontend dengan backend untuk mengambil dan mengirim data. Gunakan
+`fetch()` atau pustaka seperti Axios untuk mempermudah pengelolaan data dari API.
