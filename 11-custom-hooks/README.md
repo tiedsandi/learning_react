@@ -4,37 +4,11 @@
 
 Sebelum membuat custom hooks, penting untuk memahami aturan dasar Hooks di React:
 
-1.  **Hanya panggil hooks di tingkat atas**
-
-    - Jangan gunakan hooks di dalam loop, kondisi, atau fungsi bersarang.
-
-    ```jsx
-    function App(){
-     const [val,setVal] = useState(0)
-    }
-
-    // salah
-    function App(){
-      if(someCondition)
-         const [val,setVal] = useState(0)
-    }
-    ```
-
-2.  **Hanya panggil hooks dari fungsi React**
-
-    - Hooks hanya boleh dipanggil di dalam komponen fungsi atau di dalam custom hooks
-      lainnya.
-
-    ```jsx
-    function App() {
-      const [val, setVal] = useState(0);
-    }
-
-    // salah
-    const [val,setVal] = useState(0)
-
-    function App(){...}
-    ```
+1. **Hanya panggil hooks di tingkat atas**
+   - Jangan gunakan hooks di dalam loop, kondisi, atau fungsi bersarang.
+2. **Hanya panggil hooks dari fungsi React**
+   - Hooks hanya boleh dipanggil di dalam komponen fungsi atau di dalam custom hooks
+     lainnya.
 
 > ⚠️ Melanggar aturan ini dapat menyebabkan bug yang sulit dilacak!
 
@@ -65,7 +39,74 @@ Custom hooks pada dasarnya adalah fungsi JavaScript yang menggunakan hooks React
 - Custom hook bisa menggunakan hooks lain seperti `useState`, `useEffect`,
   `useContext`, dll.
 
-Contoh custom hook sederhana untuk mengambil data dari API:
+### Cara Buat Custom Hooks
+
+1. Buat dengan function dan penamaan dimulai dari **use**
+
+```jsx
+function useFetch() {}
+```
+
+### Fetching and Returning Value
+
+```jsx
+import { useEffect, useState } from 'react';
+
+export function useFetch(fetchFn, initialValue) {
+  const [isFetching, setIsFetching] = useState();
+  const [error, setError] = useState();
+  const [fetchData, setFetchData] = useState(initialValue);
+
+  useEffect(() => {
+    async function fetchData() {
+      setIsFetching(true);
+      try {
+        const data = await fetchFn();
+        setFetchData(data);
+      } catch (error) {
+        setError({ message: error.message || 'Failed to fetch data.' });
+      }
+      setIsFetching(false);
+    }
+
+    fetchData();
+  }, [fetchFn]);
+
+  return { isFetching, error, fetchData, setFetchData };
+}
+```
+
+### Contoh Custom Hook Lainnya
+
+Custom hook untuk menyimpan dan mengambil data dari local storage:
+
+```jsx
+import { useState, useEffect } from 'react';
+
+function useLocalStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error('Error accessing localStorage', error);
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(storedValue));
+    } catch (error) {
+      console.error('Error setting localStorage', error);
+    }
+  }, [key, storedValue]);
+
+  return [storedValue, setStoredValue];
+}
+
+export default useLocalStorage;
+```
 
 ```jsx
 import { useState, useEffect } from 'react';
@@ -105,80 +146,6 @@ Setelah membuat custom hook, kita bisa menggunakannya di dalam komponen seperti
 menggunakan hooks bawaan React.
 
 ```jsx
-import React from 'react';
-import useFetch from './useFetch';
-
-function UserList() {
-  const { data, loading, error } = useFetch(
-    'https://jsonplaceholder.typicode.com/users'
-  );
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-
-  return (
-    <ul>
-      {data.map((user) => (
-        <li key={user.id}>{user.name}</li>
-      ))}
-    </ul>
-  );
-}
-
-export default UserList;
-```
-
----
-
-## 🎯 Kesimpulan
-
-- Hooks adalah fitur penting di React untuk mengelola state dan efek samping.
-- Custom hooks memungkinkan kita menulis kode yang lebih modular dan dapat digunakan
-  kembali.
-- Dengan memahami aturan hooks dan cara membuat custom hooks, kita bisa meningkatkan
-  efisiensi pengembangan aplikasi React.
-
-# Catatan
-
-### cara buat customHooks
-
-1. buat dengan function dan penamaan dimulai dari **use**
-
-```jsx
-function useFetch() {}
-```
-
-### fetching and returning value
-
-```jsx
-import { useEffect, useState } from 'react';
-
-export function useFetch(fetchFn, initialValue) {
-  const [isFetching, setIsFetching] = useState();
-  const [error, setError] = useState();
-  const [fetchData, setFetchData] = useState(initialValue);
-
-  useEffect(() => {
-    async function fetchData() {
-      setIsFetching(true);
-      try {
-        const data = await fetchFn();
-        setFetchData(data);
-      } catch (error) {
-        setError({ message: error.message || 'Failed to fetch data.' });
-      }
-
-      setIsFetching(false);
-    }
-
-    fetchData();
-  }, [fetchFn]);
-
-  return { isFetching, error, fetchData, setFetchData };
-}
-```
-
-```jsx
 // App.jsx
 function App() {
   // some code...
@@ -191,3 +158,49 @@ function App() {
   // rest code...
 }
 ```
+
+### Jika Ingin Menggunakan Custom Hook di Tempat Lain dan Mengolah Data Terlebih Dahulu
+
+Kita bisa membuat function yang mengolah data terlebih dahulu sebelum menggunakannya
+dalam custom hook.
+
+```jsx
+async function fetchSortedPlaces() {
+  const places = await fetchAvailablePlaces();
+
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const sortedPlaces = sortPlacesByDistance(
+        places,
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      resolve(sortedPlaces);
+    });
+  });
+}
+
+function AvailablePlaces() {
+  const {
+    isFetching,
+    error,
+    fetchData: availablePlaces,
+  } = useFetch(fetchSortedPlaces, []);
+  // rest code...
+}
+```
+
+Pada kode di atas, kita membuat function baru yang mengolah data terlebih dahulu
+sebelum mengembalikannya. Menggunakan `Promise` diperlukan karena custom hook yang
+kita buat menggunakan `await`, sehingga kita perlu mengembalikan `Promise` agar
+proses asynchronous berjalan dengan baik.
+
+---
+
+## 🎯 Kesimpulan
+
+- Hooks adalah fitur penting di React untuk mengelola state dan efek samping.
+- Custom hooks memungkinkan kita menulis kode yang lebih modular dan dapat digunakan
+  kembali.
+- Dengan memahami aturan hooks dan cara membuat custom hooks, kita bisa meningkatkan
+  efisiensi pengembangan aplikasi React.
