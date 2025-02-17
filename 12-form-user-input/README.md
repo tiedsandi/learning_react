@@ -2,8 +2,7 @@
 
 Mempelajari form dalam React bisa lebih rumit daripada yang terlihat. Form dalam
 React memerlukan penanganan khusus karena React tidak secara otomatis mengelola state
-seperti pada form HTML biasa. Dalam dokumen ini, kita akan membahas beberapa
-tantangan dalam menangani form serta bagaimana mengatasinya.
+seperti pada form HTML biasa.
 
 ## Tantangan dalam Form
 
@@ -108,3 +107,58 @@ Form dalam React memerlukan pendekatan berbeda dibandingkan HTML murni. Kita bis
 memilih antara mengelola state secara manual atau menggunakan library seperti React
 Hook Form untuk menangani form dengan lebih efisien. Dengan pemahaman yang baik, kita
 dapat membuat form yang lebih interaktif dan mudah digunakan.
+
+## catatan
+
+1. tambhkan apa itu form
+
+### tantangan dalam form input
+
+ada 2 yaitu:
+
+#### Form Submission
+
+1. handling sumssion relatif mudah
+2. menginput values bisa menggunakan dengan **state**
+3. alternatif bisa menggunakna **ref**
+4. atau melalui FormData dan native browser fitur
+
+#### Input Invalid
+
+1. memberikan pengalaman pengguna yang baik itu rumit
+2. you can validate on every keystroke -> errors may be shown too early
+3. you can validate on lost focus -> erros may be shown too long
+4. you can validate on form submission -> erros may be shown too late
+
+### Handling form submission
+
+> pada react >v.19 ada fitur baru yaitu Form Actions
+
+#### kenapa ketika di tag form dan mengklik button, akan kerefresh halaman webnya?
+
+karena .... <br />
+
+solusinya :
+
+1. kasih type butotn di button
+
+```jsx
+<button type="button" className="button" onClick={handleSubmit}>
+  Submit
+</button>
+```
+
+2. kasih onSubmit di form </br> dengan memberikan onSubmit di function kita menerima
+   event
+
+```jsx
+function handleSubmit(event) {
+  event.preventDefault();
+  console.log('submitted');
+}
+
+<form onSubmit={hanldeSubmit}>
+  // rest code...
+  <button className="button">Submit</button>
+</form>;
+```
