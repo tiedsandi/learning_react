@@ -174,7 +174,7 @@ export function useFetch(fetchFn, initialValue) {
     fetchData();
   }, [fetchFn]);
 
-  return { isFetching, error, fetchData };
+  return { isFetching, error, fetchData, setFetchData };
 }
 ```
 
@@ -182,7 +182,12 @@ export function useFetch(fetchFn, initialValue) {
 // App.jsx
 function App() {
   // some code...
-  const { isFetching, error, fetchData: userPlaces } = useFetch(fetchUserPlaces, []);
+  const {
+    isFetching,
+    error,
+    fetchData: userPlaces,
+    setFetchData: setUserPlaces,
+  } = useFetch(fetchUserPlaces, []);
   // rest code...
 }
 ```
