@@ -163,7 +163,7 @@ function handleSubmit(event) {
 </form>;
 ```
 
-#### Managing & Getting user input via state
+#### Managing & Getting user input via state and reset it
 
 ```jsx
 const [enteredEmail, setEnteredEmail] = useState('');
@@ -171,6 +171,10 @@ const [enteredPassword, setEnteredPassword] = useState('');
 
 function handleSubmit(event) {
   event.preventDefault();
+
+  // how to reset
+  setEnteredEmail('');
+  setEnteredPassword('');
 }
 
 function handleEmailChange(event) {
@@ -216,7 +220,7 @@ function handlePasswordChange(event) {
 </form>;
 ```
 
-#### Generic Handler
+#### Generic Handler and reset it
 
 ```jsx
 import { useState } from 'react';
@@ -231,6 +235,11 @@ export default function Login() {
     event.preventDefault();
 
     console.log(enteredValue);
+    // how to reset
+    setEnteredValue({
+      email: '',
+      password: '',
+    });
   }
 
   function handleValueChange(identifier, event) {
@@ -277,7 +286,7 @@ export default function Login() {
 }
 ```
 
-#### getting user input via ref
+#### getting user input via ref and reset it
 
 ```jsx
 import { useRef } from 'react';
@@ -293,6 +302,9 @@ export default function Login() {
     const enteredPassword = password.current.value;
 
     console.log(enteredEmail, enteredPassword);
+
+    email.current.value = '';
+    password.current.value = '';
   }
 
   return (
@@ -320,7 +332,7 @@ export default function Login() {
 }
 ```
 
-#### getting value via formData
+#### getting value via formData and reset it
 
 > kalo mau pakai ini harus ada **name propertie** pada input
 
@@ -334,6 +346,8 @@ export default function Signup() {
     const data = Object.fromEntries(fd.entries()); //
     data.acquisition = acquisitionChanel;
     console.log(data);
+
+    event.target.reset();
   }
 
   return (
@@ -419,4 +433,14 @@ export default function Signup() {
     </form>
   );
 }
+```
+
+#### reset via button
+
+> ubah type menjadi **reset**
+
+```jsx
+<button type="reset" className="button button-flat">
+  Reset
+</button>
 ```
