@@ -1,114 +1,227 @@
-# Form User Input
+# Panduan Lengkap Form Handling di React
 
-Mempelajari form dalam React bisa lebih rumit daripada yang terlihat. Form dalam
-React memerlukan penanganan khusus karena React tidak secara otomatis mengelola state
-seperti pada form HTML biasa.
+## Apa itu Form?
 
-## Tantangan dalam Form
+Form adalah elemen dalam HTML yang digunakan untuk mengumpulkan input dari pengguna.
+Form terdiri dari berbagai elemen seperti input, textarea, select, dan button.
 
-1. **Handling Form Submission & Validasi Input**  
-   Saat pengguna mengisi form, kita perlu menangani pengiriman data serta memastikan
-   input yang dimasukkan sesuai dengan yang diharapkan. Ini mencakup validasi seperti
-   memastikan email valid, password cukup kuat, atau input tidak kosong.
+## Tantangan dalam Form Input
 
-2. **Menggunakan Fitur Bawaan Form**  
-   HTML memiliki fitur bawaan seperti validasi input (`required`, `pattern`,
-   `minLength`, dll.) yang bisa digunakan sebelum membuat solusi kustom.
+### 1. Form Submission
 
-3. **Membangun Solusi Kustom**  
-   Terkadang, fitur bawaan HTML tidak cukup, sehingga kita perlu membangun solusi
-   sendiri menggunakan state dan event handler dalam React.
+- Handling submission relatif mudah.
+- Menginput values bisa menggunakan **state**.
+- Alternatif lain bisa menggunakan **ref**.
+- Bisa juga melalui **FormData** dan fitur native browser.
 
-## Cara Mengatasi Tantangan
+### 2. Input Invalid
 
-### 1. Menggunakan State untuk Mengelola Form
+- Memberikan pengalaman pengguna yang baik itu rumit.
+- Validasi bisa dilakukan dengan beberapa pendekatan:
+  - Validasi setiap ketikan (`onChange`) -> Error mungkin muncul terlalu cepat.
+  - Validasi saat kehilangan fokus (`onBlur`) -> Error mungkin muncul terlalu lama.
+  - Validasi saat form dikirim (`onSubmit`) -> Error mungkin muncul terlalu
+    terlambat.
 
-React menggunakan state untuk mengelola nilai input form:
+## Handling Form Submission
+
+> Pada React versi 19 ke atas, terdapat fitur baru yaitu **Form Actions**.
+
+### Kenapa ketika di tag form dan mengklik button, halaman web akan refresh?
+
+Karena **default behavior** dari form HTML adalah mengirimkan request ke server dan
+me-reload halaman.
+
+### Solusinya:
+
+#### 1. Menentukan type="button" pada button
+
+```jsx
+<button type="button" className="button" onClick={handleSubmit}>
+  Submit
+</button>
+```
+
+#### 2. Menggunakan event.preventDefault() dalam fungsi handleSubmit
+
+```jsx
+function handleSubmit(event) {
+  event.preventDefault();
+  console.log('submitted');
+}
+
+<form onSubmit={handleSubmit}>
+  <button className="button">Submit</button>
+</form>;
+```
+
+## Mengelola & Mendapatkan Input User dengan State
+
+```jsx
+const [enteredEmail, setEnteredEmail] = useState('');
+const [enteredPassword, setEnteredPassword] = useState('');
+
+function handleSubmit(event) {
+  event.preventDefault();
+  setEnteredEmail('');
+  setEnteredPassword('');
+}
+```
+
+## Generic Handler dan Reset Input
+
+```jsx
+const [enteredValue, setEnteredValue] = useState({ email: '', password: '' });
+
+function handleValueChange(identifier, event) {
+  setEnteredValue((prevState) => ({
+    ...prevState,
+    [identifier]: event.target.value,
+  }));
+}
+```
+
+## Menggunakan useRef untuk Mengakses dan Mereset Input
+
+```jsx
+const emailRef = useRef();
+const passwordRef = useRef();
+
+function handleSubmit(event) {
+  event.preventDefault();
+  console.log(emailRef.current.value, passwordRef.current.value);
+  emailRef.current.value = '';
+  passwordRef.current.value = '';
+}
+```
+
+## Menggunakan FormData untuk Mengakses dan Mereset Input
+
+```jsx
+function handleSubmit(event) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  console.log(Object.fromEntries(formData.entries()));
+  event.target.reset();
+}
+```
+
+## Reset Form dengan Button
+
+```jsx
+<button type="reset" className="button button-flat">
+  Reset
+</button>
+```
+
+## Validasi Input
+
+### 1. Validasi dengan Keystroke
+
+```jsx
+const emailIsInvalid =
+  enteredValue.email !== '' && !enteredValue.email.includes('@');
+```
+
+### 2. Validasi dengan Lost Focus (onBlur)
+
+```jsx
+const [didEdit, setDidEdit] = useState(false);
+const emailIsInvalid = didEdit && !enteredValue.email.includes('@');
+```
+
+### 3. Validasi saat Submit
+
+```jsx
+function handleSubmit(event) {
+  event.preventDefault();
+  if (emailIsInvalid) return;
+  console.log(enteredValue);
+}
+```
+
+### 4. Menggunakan Library Pihak Ketiga
+
+- **Formik**: [https://formik.org/](https://formik.org/)
+- **React Hook Form**: [https://react-hook-form.com/](https://react-hook-form.com/)
+
+## Membuat Custom Hook untuk Mengelola Input
 
 ```jsx
 import { useState } from 'react';
 
-function FormExample() {
-  const [name, setName] = useState('');
+export function useInput(defaultValue, validationFn) {
+  const [value, setValue] = useState(defaultValue);
+  const [didEdit, setDidEdit] = useState(false);
 
-  const handleChange = (event) => {
-    setName(event.target.value);
-  };
+  const isValid = validationFn(value);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    alert(`Nama yang dimasukkan: ${name}`);
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Nama:
-        <input type="text" value={name} onChange={handleChange} />
-      </label>
-      <button type="submit">Kirim</button>
-    </form>
-  );
-}
-
-export default FormExample;
-```
-
-### 2. Validasi Input
-
-Kita bisa menambahkan validasi sederhana sebelum pengiriman:
-
-```jsx
-const handleSubmit = (event) => {
-  event.preventDefault();
-  if (name.trim() === '') {
-    alert('Nama tidak boleh kosong');
-    return;
+  function handleInputChange(event) {
+    setValue(event.target.value);
+    setDidEdit(false);
   }
-  alert(`Nama yang dimasukkan: ${name}`);
-};
-```
 
-### 3. Menggunakan Library Form
+  function handleInputBlur() {
+    setDidEdit(true);
+  }
 
-Alih-alih mengelola state sendiri, kita bisa menggunakan library seperti **React Hook
-Form** untuk menyederhanakan proses.
-
-```bash
-npm install react-hook-form
-```
-
-Contoh penggunaan:
-
-```jsx
-import { useForm } from 'react-hook-form';
-
-function FormWithLibrary() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const onSubmit = (data) => console.log(data);
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <input {...register('name', { required: 'Nama wajib diisi' })} />
-      {errors.name && <p>{errors.name.message}</p>}
-      <button type="submit">Kirim</button>
-    </form>
-  );
+  return {
+    value,
+    handleInputChange,
+    handleInputBlur,
+    hasError: didEdit && !isValid,
+  };
 }
 ```
 
-## Kesimpulan
+## Cara Menggunakan Custom Hook
 
-Form dalam React memerlukan pendekatan berbeda dibandingkan HTML murni. Kita bisa
-memilih antara mengelola state secara manual atau menggunakan library seperti React
-Hook Form untuk menangani form dengan lebih efisien. Dengan pemahaman yang baik, kita
-dapat membuat form yang lebih interaktif dan mudah digunakan.
+```jsx
+const {
+  value: email,
+  handleInputChange: handleEmailChange,
+  handleInputBlur: handleEmailBlur,
+  hasError: emailHasError,
+} = useInput('', (value) => isEmail(value) && isNotEmpty(value));
 
-## catatan
+const {
+  value: password,
+  handleInputChange: handlePasswordChange,
+  handleInputBlur: handlePasswordBlur,
+  hasError: passwordHasError,
+} = useInput('', (value) => hasMinLength(value, 7) && isNotEmpty(value));
+```
+
+## Fungsi Validasi
+
+```jsx
+export function isEmail(value) {
+  return value.includes('@');
+}
+
+export function isNotEmpty(value) {
+  return value.trim() !== '';
+}
+
+export function hasMinLength(value, minLength) {
+  return value.length >= minLength;
+}
+
+export function isEqualsToOtherValue(value, otherValue) {
+  return value === otherValue;
+}
+```
+
+## Dokumentasi Referensi:
+
+1. **MDN Form Validation**:
+   [https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation)
+2. **React Forms Handling**:
+   [https://react.dev/reference/react-dom/components/input](https://react.dev/reference/react-dom/components/input)
+3. **React Hook Form**: [https://react-hook-form.com/](https://react-hook-form.com/)
+4. **Formik**: [https://formik.org/](https://formik.org/)
+
+<!-- ## catatan -->
 
 1. tambhkan apa itu form
 
@@ -632,3 +745,5 @@ function handleSubmit(event) {
   console.log(enteredValue);
 }
 ```
+
+4. using thrid-party from libraries </br> ada formik, dan react hookform
