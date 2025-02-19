@@ -599,7 +599,7 @@ export default function Login() {
 }
 ```
 
-> did edit bisa di state valuenya menjadi seperti ini
+> di edit bisa di state valuenya menjadi seperti ini
 
 ```jsx
 const [enteredValue, setEnteredValue] = useState({
@@ -612,4 +612,20 @@ const [enteredValue, setEnteredValue] = useState({
     isEdit: false,
   },
 });
+```
+
+3. validating di fungsi submit
+   > di form jangan lupa untuk memberhentikan fungsinya agar tidak lanjut ke proses
+   > selanjutnya
+
+```jsx
+function handleSubmit(event) {
+  event.preventDefault();
+
+  if (emailIsInvalid) {
+    return;
+  }
+
+  console.log(enteredValue);
+}
 ```
