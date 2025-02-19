@@ -447,6 +447,9 @@ export default function Signup() {
 
 ### input validating
 
+> **documentaion** :
+> ![form validation](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Form_validation)
+
 1. using keystroke
    > hanya untuk state
 

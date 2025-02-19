@@ -31,7 +31,9 @@ export default function Login() {
           <label htmlFor="email">Email</label>
           <input id="email" type="email" name="email" ref={email} />
           <div className="control-error">
-            {emailIsInvalid && <p>please enter a valid email</p>}
+            {emailIsInvalid && (
+              <p className="control-error">please enter a valid email</p>
+            )}
           </div>
         </div>
 
