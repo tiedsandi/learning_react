@@ -148,3 +148,36 @@ Menggunakan form actions di React 19+ menyederhanakan penanganan pengiriman form
 mengurangi kode boilerplate, dan terintegrasi dengan baik dengan komponen server.
 Memahami kapan harus menggunakan tindakan sinkron, asinkron, dan pembaruan UI optimis
 akan meningkatkan pengalaman pengguna secara keseluruhan.
+
+# FORM actions
+
+## Apa itu form actions
+
+adalah fitur yang ada di versi 19
+
+```jsx
+export default function Signup() {
+  function signupAction(formData) {
+    const email = formData.get('email');
+
+    console.log(email);
+  }
+
+  return (
+    <form action={signupAction}>
+      <div className="control">
+        <label htmlFor="email">Email</label>
+        <input id="email" type="email" name="email" />
+      </div>
+    </form>
+  );
+}
+```
+
+> input harus ada attribute **name**
+
+## useActionState from 'react'
+
+<!-- berikan penejlasan apa itu useActionState -->
+<!-- berikan contoh beserta langkah pembuatannya(dari import, buat action)-->
+<!-- untuk contoh ada input, confirmation password, select, dropdown, checkbox, dan slider -->
