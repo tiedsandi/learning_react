@@ -2,164 +2,24 @@
 
 ## 1. Pendahuluan
 
-Form actions dalam React memberikan cara yang terstruktur untuk menangani pengiriman
-formulir, memanfaatkan manajemen state React dan fitur bawaan. Alih-alih menangani
-event secara manual dengan `onSubmit`, React dapat menangani pengiriman formulir
-secara deklaratif.
+Form actions dalam React 19+ adalah fitur baru yang memungkinkan pengelolaan
+pengiriman formulir secara deklaratif. Dengan menggunakan form actions, pengiriman
+data dapat langsung ditangani tanpa perlu event handler eksplisit seperti `onSubmit`.
+Ini sangat berguna dalam lingkungan React Server Components.
 
 ---
 
-## 2. Form Actions vs Penanganan Pengiriman Kustom
+## 2. Apa Itu Form Actions?
 
-### **Form Actions (Pendekatan Deklaratif)**
+Form actions adalah fitur di React 19+ yang memungkinkan pengelolaan pengiriman
+formulir tanpa event handler manual.
 
-- Menggunakan mekanisme pengiriman formulir bawaan React.
-- Terintegrasi lebih baik dengan komponen server (React Server Actions).
-- Menyederhanakan manajemen state dengan mengandalkan mekanisme React.
-
-### **Penanganan Pengiriman Kustom (Pendekatan Imperatif)**
-
-- Menggunakan `onSubmit` dengan event listener.
-- Memerlukan penanganan event, validasi, dan pembaruan state secara manual.
-- Lebih fleksibel tetapi bisa menjadi kompleks dalam aplikasi besar.
-
-Contoh:
-
-```jsx
-// Penanganan Kustom
-const handleSubmit = (event) => {
-  event.preventDefault();
-  const formData = new FormData(event.target);
-  console.log(Object.fromEntries(formData));
-};
-
-<form onSubmit={handleSubmit}>
-  <input name="username" type="text" />
-  <button type="submit">Kirim</button>
-</form>;
-```
-
-Menggunakan Form Actions:
-
-```jsx
-'use server';
-export async function action(formData) {
-  console.log(Object.fromEntries(formData));
-}
-
-<form action={action}>
-  <input name="username" type="text" />
-  <button type="submit">Kirim</button>
-</form>;
-```
-
----
-
-## 3. Mengekstrak Nilai & Mengelola State Formulir
-
-React menyediakan berbagai cara untuk mengelola state formulir:
-
-- **Formulir Tidak Terkontrol (menggunakan FormData)**:
-
-  ```jsx
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    console.log(formData.get('username'));
-  };
-  ```
-
-- **Formulir Terkontrol (menggunakan useState)**:
-
-  ```jsx
-  const [value, setValue] = useState('');
-  <input value={value} onChange={(e) => setValue(e.target.value)} />;
-  ```
-
-- **Menggunakan Form Actions (tanpa useState)**:
-  ```jsx
-  'use server';
-  export async function action(formData) {
-    console.log(formData.get('username'));
-  }
-  ```
-
----
-
-## 4. Tindakan Sinkron & Asinkron
-
-### **Tindakan Sinkron**
-
-Tindakan sinkron dieksekusi secara langsung:
-
-```jsx
-'use server';
-export function action(formData) {
-  console.log(formData.get('username'));
-}
-```
-
-### **Tindakan Asinkron**
-
-Tindakan asinkron memungkinkan penanganan permintaan API atau logika sisi server:
-
-```jsx
-'use server';
-export async function action(formData) {
-  await fetch('/api', { method: 'POST', body: formData });
-}
-```
-
----
-
-## 5. Optimistic UI Updating
-
-Optimistic UI meningkatkan pengalaman pengguna dengan memperbarui UI sebelum menerima
-respons dari server.
-
-```jsx
-const [message, setMessage] = useState('');
-
-const handleSubmit = async (event) => {
-  event.preventDefault();
-  setMessage('Mengirim...');
-  await fetch('/api', { method: 'POST' });
-  setMessage('Terkirim!');
-};
-```
-
-Dengan React Form Actions:
-
-```jsx
-'use server';
-export async function action(formData) {
-  return { message: 'Terkirim!' };
-}
-```
-
-React menangani pembaruan UI secara otomatis tanpa memerlukan manajemen state
-tambahan.
-
----
-
-## 6. Kesimpulan
-
-Menggunakan form actions di React 19+ menyederhanakan penanganan pengiriman formulir,
-mengurangi kode boilerplate, dan terintegrasi dengan baik dengan komponen server.
-Memahami kapan harus menggunakan tindakan sinkron, asinkron, dan pembaruan UI optimis
-akan meningkatkan pengalaman pengguna secara keseluruhan.
-
-# FORM actions
-
-## Apa itu form actions
-
-adalah fitur yang ada di versi 19
+Contoh penggunaan dasar:
 
 ```jsx
 export default function Signup() {
   function signupAction(formData) {
     const email = formData.get('email');
-
     console.log(email);
   }
 
@@ -169,14 +29,143 @@ export default function Signup() {
         <label htmlFor="email">Email</label>
         <input id="email" type="email" name="email" />
       </div>
+      <button type="submit">Daftar</button>
     </form>
   );
 }
 ```
 
-> input harus ada attribute **name**
+> **Catatan:** Input harus memiliki atribut `name` agar nilainya dapat diambil dari
+> `formData`.
 
-## useActionState from 'react'
+---
+
+## 3. useActionState dari 'react'
+
+### **Apa itu useActionState?**
+
+`useActionState` adalah hook baru di React 19+ yang memungkinkan kita untuk menangani
+state hasil dari form action secara langsung di komponen klien. Ini sangat berguna
+untuk menangani respons dari pengiriman formulir tanpa perlu menggunakan state
+tambahan.
+
+### **Menggunakan useActionState dengan dan tanpa initial state**
+
+1. **Dengan initial state**
+
+   ```jsx
+   const [formState, formAction] = useActionState(signupAction, { errors: null });
+   ```
+
+   - `errors: null` digunakan sebagai nilai awal untuk menangani error pada form.
+   - Jika ada kesalahan saat pengisian, state akan diperbarui tanpa mereset form.
+
+2. **Tanpa initial state**
+   ```jsx
+   const [formState, formAction] = useActionState(signupAction, null);
+   ```
+   - Digunakan ketika tidak ada nilai awal yang perlu disimpan atau ditampilkan
+     kembali.
+   - Data form akan dikosongkan setelah dikirim.
+
+### **Langkah-langkah penggunaan `useActionState`**
+
+1. **Buat function action untuk menangani pengiriman formulir**
+2. **Gunakan `useActionState` untuk mengelola state hasil action**
+3. **Tampilkan hasil pada UI**
+
+### Contoh Implementasi dengan Berbagai Input
+
+#### 1. Input Teks
+
+```jsx
+'use client';
+import { useActionState } from 'react';
+
+function signupAction(prevState, formData) {
+  const email = formData.get('email');
+  return { success: `Email: ${email} berhasil didaftarkan!` };
+}
+
+export default function SignupForm() {
+  const [state, formAction] = useActionState(signupAction, {});
+
+  return (
+    <form action={formAction}>
+      <label>Email</label>
+      <input type="email" name="email" required />
+      <button type="submit">Daftar</button>
+      {state?.success && <p style={{ color: 'green' }}>{state.success}</p>}
+    </form>
+  );
+}
+```
+
+#### 2. Input Password & Konfirmasi Password
+
+```jsx
+function signupAction(prevState, formData) {
+  const password = formData.get('password');
+  const confirmPassword = formData.get('confirmPassword');
+
+  if (password !== confirmPassword) {
+    return { error: 'Password tidak cocok' };
+  }
+  return { success: 'Pendaftaran berhasil!' };
+}
+```
+
+#### 3. Select (Dropdown)
+
+```jsx
+function signupAction(prevState, formData) {
+  const country = formData.get('country');
+  return { success: `Negara terpilih: ${country}` };
+}
+```
+
+#### 4. Checkbox
+
+```jsx
+function signupAction(prevState, formData) {
+  const subscribe = formData.get('subscribe') === 'on';
+  return {
+    success: subscribe ? 'Berlangganan diaktifkan' : 'Berlangganan tidak diaktifkan',
+  };
+}
+```
+
+#### 5. Slider (Input Range)
+
+```jsx
+function signupAction(prevState, formData) {
+  const volume = formData.get('volume');
+  return { success: `Volume disetel ke ${volume}` };
+}
+```
+
+---
+
+## 4. Kesimpulan
+
+React 19+ memperkenalkan Form Actions dan `useActionState`, yang memungkinkan
+pengiriman formulir secara deklaratif tanpa perlu event handler eksplisit. Dengan
+menggunakan fitur ini, pengelolaan formulir menjadi lebih sederhana dan lebih
+terintegrasi dengan ekosistem React Server Components. Beberapa hal yang telah kita
+pelajari:
+
+- **Form Actions** memungkinkan pengiriman data langsung tanpa `onSubmit`.
+- **useActionState** mempermudah pengelolaan state formulir secara langsung dalam
+  komponen.
+- **Dengan initial state**, data tidak hilang saat terjadi error.
+- **Tanpa initial state**, form akan dikosongkan setelah dikirim.
+- Berbagai jenis input seperti **text, password, select, checkbox** dapat digunakan
+  dengan Form Actions.
+
+Dengan memahami konsep-konsep ini, kita dapat membangun formulir yang lebih efisien
+dan mudah dipelihara di React 19+.
+
+<!-- ## useActionState from 'react' -->
 
 <!-- berikan penejlasan apa itu useActionState -->
 <!-- berikan contoh beserta langkah pembuatannya(dari import, buat action)-->
