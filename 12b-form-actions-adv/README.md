@@ -26,3 +26,5 @@ export default function Opinion() {
   );
 }
 ```
+
+## Selain Pending gunakan useOptimistic() untuk better Experience
