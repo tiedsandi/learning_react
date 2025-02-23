@@ -181,3 +181,6 @@ export default function Signup() {
 <!-- berikan penejlasan apa itu useActionState -->
 <!-- berikan contoh beserta langkah pembuatannya(dari import, buat action)-->
 <!-- untuk contoh ada input, confirmation password, select, dropdown, checkbox, dan slider -->
+
+<!-- berikan 2 contoh yaitu yang formAction tanpa async yang kedua dengan async -->
+<!-- untuk memberikan loading ada 2 cara yaitu menggunakan pedding di useActionState atau formStatus()-->
