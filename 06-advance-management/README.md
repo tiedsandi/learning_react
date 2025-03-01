@@ -1,4 +1,4 @@
-# Advanced State Management
+# Advanced State Management (React Context)
 
 ## 1. Prop Drilling & Context API
 
