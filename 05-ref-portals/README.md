@@ -64,7 +64,7 @@ export default function Timer() {
 > **Catatan:** Perubahan pada `countRef` tidak menyebabkan komponen re-render,
 > sementara perubahan `count` dengan `useState` akan menyebabkan re-render.
 
-### 3. Mengekspos API Fungsi dari Komponen
+### 3. Mengekspos API Fungsi dari Komponen (Buat method sendiri)
 
 Refs juga dapat digunakan untuk mengekspos metode dari komponen agar bisa diakses
 oleh komponen lain.
@@ -72,9 +72,9 @@ oleh komponen lain.
 #### Contoh:
 
 ```jsx
-import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { useImperativeHandle, useRef } from 'react';
 
-const CustomInput = forwardRef((props, ref) => {
+function CustomInput(props, ref) {
   const inputRef = useRef();
 
   useImperativeHandle(ref, () => ({
@@ -83,7 +83,7 @@ const CustomInput = forwardRef((props, ref) => {
   }));
 
   return <input ref={inputRef} type="text" placeholder="Type here..." />;
-});
+}
 
 export default function Parent() {
   const inputRef = useRef();
@@ -100,6 +100,24 @@ export default function Parent() {
 
 > **Catatan:** `useImperativeHandle` digunakan untuk mengekspos fungsi `focus` dan
 > `clear` dari `CustomInput` ke komponen `Parent`.
+
+> untuk versi react <19 tidak bisa langsung mengirim ref melalui prop tapi
+> menggunakan forwardRef()
+
+```jsx
+import { forwardRef, useRef, useImperativeHandle } from 'react';
+
+const CustomInput = forwardRef(function CustomInput({ text, ...props }, ref) {
+  const inputRef = useRef();
+
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current.focus(),
+    clear: () => (inputRef.current.value = ''),
+  }));
+
+  return <input ref={inputRef} type="text" placeholder="Type here..." />;
+});
+```
 
 ---
 
