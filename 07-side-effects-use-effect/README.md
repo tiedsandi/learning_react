@@ -165,7 +165,7 @@ perlu menggunakan `useEffect`.
 
 ---
 
-## useEffect dan Fungsi sebagai Dependency
+## useEffect dan Fungsi sebagai Dependency (useCallback())
 
 Jika kita menggunakan fungsi dalam dependency array, kita harus hati-hati karena
 fungsi baru akan dibuat di setiap render, yang menyebabkan `useEffect` terus
