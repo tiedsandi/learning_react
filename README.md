@@ -19,3 +19,17 @@
 13.
 14.
 15.
+
+<!-- course tambahan -->
+
+###### db(firebase, mongodb, postgres sql, oracle, sqlite)
+
+###### backend(nodejs,express, golang);
+
+###### design(figma, editing photo, editing video);
+
+###### FE (reactjs, typescript, nextJs )
+
+###### android (react native)
+
+###### docker, ai, microservices
