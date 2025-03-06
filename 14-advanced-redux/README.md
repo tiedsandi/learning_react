@@ -233,3 +233,237 @@ di-maintain, dan lebih scalable! 🚀
 ## Using Thunk
 
 ### Apa itu thunk?
+
+#### Redux Thunk vs createAsyncThunk (Redux Toolkit)
+
+##### 📌 Pengantar
+
+Redux memiliki middleware bernama **Redux Thunk**, yang memungkinkan kita untuk
+menangani side effect seperti API call dalam action creator.
+
+Dalam Redux Toolkit, kita bisa menggunakan `createAsyncThunk` untuk membuat async
+action lebih clean dan terstruktur dibandingkan dengan cara manual menggunakan Redux
+Thunk biasa.
+
+---
+
+##### 🛠 1. Redux Thunk Manual (Tanpa Redux Toolkit)
+
+Cara ini menggunakan **dispatch manual** untuk mengatur status `pending`, `success`,
+dan `error`.
+
+###### **🔹 Contoh Redux Thunk Manual**
+
+```js
+import { cartActions } from './cart-slice';
+import { showNotification } from './ui-slice';
+
+export const sendCartData = (cart) => {
+  return async (dispatch) => {
+    dispatch(
+      showNotification({
+        status: 'pending',
+        title: 'Sending...',
+        message: 'Sending cart data!',
+      })
+    );
+
+    try {
+      const response = await fetch('https://api.example.com/cart', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cart),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send cart data.');
+      }
+
+      dispatch(
+        showNotification({
+          status: 'success',
+          title: 'Success!',
+          message: 'Cart data sent successfully!',
+        })
+      );
+    } catch (error) {
+      dispatch(
+        showNotification({
+          status: 'error',
+          title: 'Error!',
+          message: error.message || 'Failed to send cart data!',
+        })
+      );
+    }
+  };
+};
+```
+
+###### **🔹 Kekurangan:**
+
+❌ Harus dispatch `pending`, `success`, dan `error` secara manual.  
+❌ Kode bisa menjadi lebih panjang jika banyak thunk yang digunakan.
+
+---
+
+##### 🛠 2. Redux Toolkit dengan createAsyncThunk
+
+Redux Toolkit memiliki `createAsyncThunk` yang otomatis mengelola **state loading,
+success, dan error**.
+
+###### **🔹 Contoh Penggunaan `createAsyncThunk`**
+
+```js
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
+// Async thunk untuk mengirim data ke API
+export const sendCartData = createAsyncThunk(
+  'cart/sendCartData',
+  async (cart, { rejectWithValue }) => {
+    try {
+      const response = await fetch('https://api.example.com/cart', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cart),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error ${response.status}`);
+      }
+
+      return cart; // Data akan diterima di reducer jika berhasil
+    } catch (error) {
+      return rejectWithValue(error.message); // Mengirim error ke reducer
+    }
+  }
+);
+```
+
+---
+
+##### 🛠 3. Menangani State di `extraReducers`
+
+Redux Toolkit menawarkan **dua cara** untuk menangani `extraReducers`:  
+1️⃣ **Menggunakan `builder.addCase()`** (Direkomendasikan)  
+2️⃣ **Menggunakan objek dengan computed property**
+
+###### **🔹 1. Menggunakan `builder.addCase()`** ✅ (Direkomendasikan)
+
+```js
+const cartSlice = createSlice({
+  name: 'cart',
+  initialState: {
+    items: [],
+    totalQuantity: 0,
+    status: null,
+    error: null,
+  },
+  reducers: {
+    replaceCart(state, action) {
+      state.items = action.payload.items;
+      state.totalQuantity = action.payload.totalQuantity;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(sendCartData.pending, (state) => {
+        state.status = 'pending';
+        state.error = null;
+      })
+      .addCase(sendCartData.fulfilled, (state, action) => {
+        state.status = 'success';
+        state.items = action.payload.items;
+        state.totalQuantity = action.payload.totalQuantity;
+      })
+      .addCase(sendCartData.rejected, (state, action) => {
+        state.status = 'error';
+        state.error = action.payload;
+      });
+  },
+});
+```
+
+###### **🔹 2. Menggunakan Objek (`[sendCartData.pending]`)**
+
+```js
+const cartSlice = createSlice({
+  name: 'cart',
+  initialState: {
+    items: [],
+    totalQuantity: 0,
+    status: null,
+    error: null,
+  },
+  reducers: {
+    replaceCart(state, action) {
+      state.items = action.payload.items;
+      state.totalQuantity = action.payload.totalQuantity;
+    },
+  },
+  extraReducers: {
+    [sendCartData.pending]: (state) => {
+      state.status = 'pending';
+      state.error = null;
+    },
+    [sendCartData.fulfilled]: (state, action) => {
+      state.status = 'success';
+      state.items = action.payload.items;
+      state.totalQuantity = action.payload.totalQuantity;
+    },
+    [sendCartData.rejected]: (state, action) => {
+      state.status = 'error';
+      state.error = action.payload;
+    },
+  },
+});
+```
+
+###### **🔹 Mana yang Sebaiknya Dipakai?**
+
+| Metode                         | Kelebihan                                  | Kekurangan                      |
+| ------------------------------ | ------------------------------------------ | ------------------------------- |
+| `builder.addCase()`            | Lebih fleksibel, bisa pakai `addMatcher()` | Sedikit lebih panjang           |
+| Objek `[sendCartData.pending]` | Lebih ringkas                              | Tidak bisa pakai `addMatcher()` |
+
+---
+
+##### Disptach di Component
+
+```jsx
+import { useDispatch, useSelector } from 'react-redux';
+import { sendCartData } from '../store/cart-slice';
+
+const CartComponent = () => {
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart);
+
+  const sendCartHandler = () => {
+    dispatch(sendCartData(cart));
+  };
+
+  return (
+    <div>
+      <button onClick={sendCartHandler}>Send Cart</button>
+      {cart.status === 'pending' && <p>Sending cart data...</p>}
+      {cart.status === 'success' && <p>Cart data sent successfully!</p>}
+      {cart.status === 'error' && <p>Error: {cart.error}</p>}
+    </div>
+  );
+};
+```
+
+##### 🚀 Kesimpulan
+
+✅ **Redux Thunk Manual** cocok jika ingin tetap menggunakan Redux klasik tanpa Redux
+Toolkit.  
+✅ **`createAsyncThunk` di Redux Toolkit** lebih clean, otomatis menangani status
+async, dan direkomendasikan untuk aplikasi modern.  
+✅ **Gunakan `builder.addCase()` jika ingin fleksibilitas lebih**, atau **gunakan
+objek biasa jika ingin kode lebih singkat**.
+
+---
+
+## The redux dev tolls
+
+> install di extension chrome **Redux Toolkit Dev**
