@@ -229,3 +229,7 @@ samping.
 
 Dengan mengikuti best practice ini, kode Redux Anda akan lebih bersih, lebih mudah
 di-maintain, dan lebih scalable! 🚀
+
+## Using Thunk
+
+### Apa itu thunk?
