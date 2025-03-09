@@ -26,7 +26,7 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <HomePage /> },
       {
-        path: '/products/:id',
+        path: '/products',
         element: <ProductsPage />,
         errorElement: <ErrorPage title="Product not found!" />,
       },

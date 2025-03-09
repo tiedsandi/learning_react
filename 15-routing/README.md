@@ -144,3 +144,96 @@ export default function AdminLayout() {
   );
 }
 ```
+
+### 6️⃣ Menampilkan Halaman Error (Not Found)
+
+Menampilkan halaman error ketika pengguna mengakses halaman yang tidak tersedia.
+
+```jsx
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement: <ErrorPage title="Page not found!" />,
+    children: [
+      { path: '/', element: <HomePage /> },
+      {
+        path: '/products/:id',
+        element: <ProductsPage />,
+        errorElement: <ErrorPage title="Product not found!" />,
+      },
+    ],
+  },
+]);
+```
+
+### 7️⃣ Navigasi Menggunakan `<NavLink />`
+
+Menggunakan `<NavLink>` untuk menambahkan styling pada link aktif.
+
+```jsx
+import { NavLink } from 'react-router-dom';
+
+import classes from './MainNavigation.module.css';
+
+export default function MainNavigation() {
+  return (
+    <header className={classes.header}>
+      <nav>
+        <ul className={classes.list}>
+          <li>
+            <NavLink
+              to="/"
+              className={({ isActive }) => (isActive ? classes.active : undefined)}
+              // style={({ isActive }) => ({
+              //   textAlign: isActive ? 'center' : 'left',
+              // })}
+              end>
+              Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/products"
+              className={({ isActive }) => (isActive ? classes.active : undefined)}>
+              Products
+            </NavLink>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
+}
+import { NavLink } from 'react-router-dom';
+
+import classes from './MainNavigation.module.css';
+
+export default function MainNavigation() {
+  return (
+    <header className={classes.header}>
+      <nav>
+        <ul className={classes.list}>
+          <li>
+            <NavLink
+              to="/"
+              className={({ isActive }) => (isActive ? classes.active : undefined)}
+              // style={({ isActive }) => ({
+              //   textAlign: isActive ? 'center' : 'left',
+              // })}
+              end>
+              Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/products"
+              className={({ isActive }) => (isActive ? classes.active : undefined)}>
+              Products
+            </NavLink>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
+}
+```
