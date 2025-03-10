@@ -9,7 +9,7 @@ import HomePage from './pages/Home';
 import ProductsPage from './pages/Products';
 import RootLayout from './pages/Root';
 import ErrorPage from './pages/Error';
-import ProductDetailPage from './components/ProductDetail';
+import ProductDetailPage from './pages/ProductDetail';
 
 // const routeDefinitions = createRoutesFromElements(
 //   <Route>
@@ -25,14 +25,14 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     errorElement: <ErrorPage title="Page not found!" />,
     children: [
-      { path: '/', element: <HomePage /> },
+      { path: '', element: <HomePage /> },
       {
-        path: '/products',
+        path: 'products',
         element: <ProductsPage />,
         errorElement: <ErrorPage title="Product not found!" />,
       },
       {
-        path: '/products/:productId',
+        path: 'products/:productId',
         element: <ProductDetailPage />,
       },
     ],
