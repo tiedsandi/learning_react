@@ -9,6 +9,7 @@ import HomePage from './pages/Home';
 import ProductsPage from './pages/Products';
 import RootLayout from './pages/Root';
 import ErrorPage from './pages/Error';
+import ProductDetailPage from './components/ProductDetail';
 
 // const routeDefinitions = createRoutesFromElements(
 //   <Route>
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
         path: '/products',
         element: <ProductsPage />,
         errorElement: <ErrorPage title="Product not found!" />,
+      },
+      {
+        path: '/products/:productId',
+        element: <ProductDetailPage />,
       },
     ],
   },
