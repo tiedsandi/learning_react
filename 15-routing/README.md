@@ -237,3 +237,66 @@ export default function MainNavigation() {
   );
 }
 ```
+
+> Note
+
+- useNavigate()
+- dynamic routes and using useParams();
+- adding links for dynamic routes using maps
+- understanding relative & absolute path
+
+```jsx
+import {
+  createBrowserRouter,
+  // createRoutesFromElements,
+  RouterProvider,
+  // Route,
+} from 'react-router-dom';
+
+import HomePage from './pages/Home';
+import ProductsPage from './pages/Products';
+import RootLayout from './pages/Root';
+import ErrorPage from './pages/Error';
+import ProductDetailPage from './components/ProductDetail';
+
+// const routeDefinitions = createRoutesFromElements(
+//   <Route>
+//     <Route path="/" element={<HomePage />} />
+//     <Route path="/products" element={<ProductsPage />} />
+//   </Route>
+// );
+// const router = createBrowserRouter(routeDefintions);
+
+const router = createBrowserRouter([
+  {
+    path: '/root', //di sini di tambahkan root
+    element: <RootLayout />,
+    errorElement: <ErrorPage title="Page not found!" />,
+    children: [
+      { path: '', element: <HomePage /> },
+      {
+        path: 'products', //tidak ada / di awal untuk mengikutin path yang di atas jadi /root/products
+        element: <ProductsPage />,
+        errorElement: <ErrorPage title="Product not found!" />,
+      },
+      {
+        path: 'products/:productId',
+        element: <ProductDetailPage />,
+      },
+    ],
+  },
+]);
+
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+```
+
+> cukup kompleks pahami link atribute:
+>
+> 1. relative: root/path
+> 2. to => bersifat absolute, jadi kalo ingin mengikuti rootnya atau parentsnya
+>    jangan ada slash di depan
+> 3. index routes
