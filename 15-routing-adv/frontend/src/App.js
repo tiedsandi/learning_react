@@ -22,12 +22,12 @@
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import EditEventPage from './pages/EditEventPage';
+import EditEventPage from './pages/EditEvent';
 import RootLayout from './pages/Root';
-import HomePage from './pages/HomePage';
-import NewEventPage from './pages/NewEventPage';
-import EventDetailPage from './pages/EventDetailPage';
-import EventsPage from './pages/EventsPage';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import EventDetailPage from './pages/EventDetail';
+import EventsPage from './pages/Events';
 import EventsLayout from './pages/EventsRoot';
 
 const router = createBrowserRouter([
