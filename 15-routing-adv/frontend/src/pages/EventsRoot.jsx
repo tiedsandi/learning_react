@@ -1,9 +1,10 @@
 import { Outlet } from 'react-router-dom';
+import EventsNavigation from '../components/EventsNavigation';
 
 export default function EventsLayout() {
   return (
     <>
-      <h1>Events layout</h1>
+      <EventsNavigation />
       <Outlet />
     </>
   );
