@@ -29,6 +29,7 @@ import NewEventPage from './pages/NewEvent';
 import EventDetailPage from './pages/EventDetail';
 import EventsPage, { loader as eventsLoader } from './pages/Events';
 import EventsLayout from './pages/EventsRoot';
+import ErrorPage from './pages/Error';
 
 const router = createBrowserRouter([
   {
@@ -39,10 +40,12 @@ const router = createBrowserRouter([
       {
         path: 'events',
         element: <EventsLayout />,
+        errorElement: <ErrorPage />,
         children: [
           {
             index: true,
             element: <EventsPage />,
+            errorElement: <h1>Erro fetching</h1>,
             loader: eventsLoader,
           },
           { path: ':eventid', element: <EventDetailPage /> },
