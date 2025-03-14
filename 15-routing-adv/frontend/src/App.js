@@ -35,17 +35,17 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <HomePage /> },
       {
         path: 'events',
         element: <EventsLayout />,
-        errorElement: <ErrorPage />,
         children: [
           {
             index: true,
             element: <EventsPage />,
-            errorElement: <h1>Erro fetching</h1>,
+            // errorElement: <h1>Erro fetching</h1>,
             loader: eventsLoader,
           },
           { path: ':eventid', element: <EventDetailPage /> },
