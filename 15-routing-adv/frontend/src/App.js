@@ -26,7 +26,10 @@ import EditEventPage from './pages/EditEvent';
 import RootLayout from './pages/Root';
 import HomePage from './pages/Home';
 import NewEventPage from './pages/NewEvent';
-import EventDetailPage from './pages/EventDetail';
+import EventDetailPage, {
+  loader as eventDetailLoader,
+  HydrateFallback as eventHydrate,
+} from './pages/EventDetail';
 import EventsPage, { loader as eventsLoader } from './pages/Events';
 import EventsLayout from './pages/EventsRoot';
 import ErrorPage from './pages/Error';
@@ -48,7 +51,12 @@ const router = createBrowserRouter([
             // errorElement: <h1>Erro fetching</h1>,
             loader: eventsLoader,
           },
-          { path: ':eventid', element: <EventDetailPage /> },
+          {
+            path: ':eventid',
+            element: <EventDetailPage />,
+            loader: eventDetailLoader,
+            HydrateFallback: eventHydrate,
+          },
           { path: 'new', element: <NewEventPage /> },
           { path: ':eventid/edit', element: <EditEventPage /> },
         ],
