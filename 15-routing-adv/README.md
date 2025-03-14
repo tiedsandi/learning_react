@@ -4,4 +4,4 @@
    bawah, tapi di ambil nya di high levelnya akan error karena fetching belum di
    lakukan
 
-2. useRouterError
+2. useRouterError and JSON()
