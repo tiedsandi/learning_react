@@ -52,13 +52,19 @@ const router = createBrowserRouter([
             loader: eventsLoader,
           },
           {
-            path: ':eventid',
-            element: <EventDetailPage />,
+            path: ':eventId',
+            id: 'event-detail',
             loader: eventDetailLoader,
             HydrateFallback: eventHydrate,
+            children: [
+              {
+                index: true,
+                element: <EventDetailPage />,
+              },
+              { path: 'edit', element: <EditEventPage /> },
+            ],
           },
           { path: 'new', element: <NewEventPage /> },
-          { path: ':eventid/edit', element: <EditEventPage /> },
         ],
       },
     ],

@@ -7,3 +7,4 @@
 3. hydrateFallback untuk v7
 4. useRouterError
 5. JSON() untuk versi 6 saja, 7 sudah tidak ada
+6. useRouteLoaderData
