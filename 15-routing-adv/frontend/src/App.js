@@ -27,6 +27,7 @@ import RootLayout from './pages/Root';
 import HomePage from './pages/Home';
 import NewEventPage, { action as newEventAction } from './pages/NewEvent';
 import EventDetailPage, {
+  action as deleteEventAction,
   loader as eventDetailLoader,
   HydrateFallback as eventHydrate,
 } from './pages/EventDetail';
@@ -60,6 +61,7 @@ const router = createBrowserRouter([
               {
                 index: true,
                 element: <EventDetailPage />,
+                action: deleteEventAction,
               },
               { path: 'edit', element: <EditEventPage /> },
             ],
