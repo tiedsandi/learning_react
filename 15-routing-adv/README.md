@@ -11,3 +11,5 @@
 7. Form
 8. redirect
 9. useSubmit
+10. useNavigate
+11. useNavigation
