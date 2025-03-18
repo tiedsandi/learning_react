@@ -15,3 +15,14 @@
 11. useNavigation
 12. useActionData
 13. await
+
+- mempeljari bagaimana mengonfigurasi rute, dan memastikan komponen yang berbeda
+  dimuat untuk route yang berbeda
+- nested route
+- handle layout di beberapa tingkatan
+- handle error
+- data fetching
+- dan data submission
+- mempelajari dan mengatur pengembalian dan pengiriman data dengan loader dan action
+- mempelajari useFetcher
+- memeplajari defering (menunda pengembalian data fetching)
