@@ -204,3 +204,212 @@ proses asynchronous berjalan dengan baik.
   kembali.
 - Dengan memahami aturan hooks dan cara membuat custom hooks, kita bisa meningkatkan
   efisiensi pengembangan aplikasi React.
+
+> ---
+>
+> ---
+>
+> ---
+>
+> ---
+>
+> ---
+
+# 📖 Custom React Hooks
+
+## 🚀 Pendahuluan
+
+React Hooks adalah fitur yang memungkinkan kita menggunakan state dan lifecycle
+methods dalam functional components. Namun, sering kali kita menemukan kode yang
+berulang di beberapa komponen. **Custom hooks** memungkinkan kita mengekstrak dan
+mengemas logika ini agar lebih modular dan reusable.
+
+> 🎯 **Tujuan dari Custom Hook:**
+>
+> - Mengurangi **duplikasi kode** dan meningkatkan **reusability**.
+> - Memisahkan **logika bisnis dari UI**, sehingga komponen lebih bersih.
+> - Mempermudah **pengelolaan state dan efek samping** dalam React.
+
+---
+
+## 📌 Aturan Dasar Hooks
+
+Sebelum membuat custom hooks, penting untuk memahami aturan dasar Hooks di React:
+
+1. **Hanya panggil hooks di tingkat atas**
+   - Jangan gunakan hooks di dalam loop, kondisi, atau fungsi bersarang.
+2. **Hanya panggil hooks dari fungsi React**
+   - Hooks hanya boleh dipanggil di dalam komponen fungsi atau di dalam custom hooks
+     lainnya.
+
+> ⚠️ **Melanggar aturan ini dapat menyebabkan bug yang sulit dilacak!**
+
+---
+
+## 🛠️ Cara Membuat Custom Hook
+
+Custom hooks pada dasarnya adalah fungsi JavaScript yang menggunakan hooks React.
+
+✅ **Konvensi penamaan:** Awali nama dengan `use` (misalnya, `useFetch`, `useAuth`,
+`useLocalStorage`).
+
+### 1️⃣ Membuat Custom Hook Dasar
+
+```jsx
+function useFetch() {}
+```
+
+### 2️⃣ Fetching Data dengan Custom Hook
+
+```jsx
+import { useEffect, useState } from 'react';
+
+export function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch(url);
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [url]);
+
+  return { data, loading, error };
+}
+```
+
+💡 **Kelebihan:** Dengan `useFetch`, kita tidak perlu menulis ulang kode fetching API
+di setiap komponen.
+
+---
+
+## 📂 Contoh Custom Hook Lainnya
+
+### **1️⃣ Custom Hook untuk Local Storage**
+
+```jsx
+import { useState, useEffect } from 'react';
+
+function useLocalStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error('Error accessing localStorage', error);
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(storedValue));
+    } catch (error) {
+      console.error('Error setting localStorage', error);
+    }
+  }, [key, storedValue]);
+
+  return [storedValue, setStoredValue];
+}
+
+export default useLocalStorage;
+```
+
+💡 **Kapan Digunakan?**
+
+- Menyimpan preferensi user seperti tema (dark/light mode).
+- Cache data form agar tidak hilang saat reload.
+
+---
+
+## 🔥 Implementasi Custom Hook di Komponen
+
+Setelah membuat custom hook, kita bisa menggunakannya dalam komponen React seperti
+hooks bawaan.
+
+```jsx
+import useFetch from './useFetch';
+
+function App() {
+  const { data, loading, error } = useFetch(
+    'https://jsonplaceholder.typicode.com/posts'
+  );
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  return (
+    <div>
+      <h1>Data dari API</h1>
+      <ul>
+        {data.map((item) => (
+          <li key={item.id}>{item.title}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+✅ **Keuntungan:**
+
+- Memisahkan logika fetching dari UI.
+- Kode lebih bersih dan terstruktur.
+
+---
+
+## 🎯 Studi Kasus: Sorting Data dengan Custom Hook
+
+Terkadang kita ingin mengolah data terlebih dahulu sebelum digunakan di komponen.
+Misalnya, kita ingin mengurutkan tempat berdasarkan jarak pengguna saat ini.
+
+```jsx
+async function fetchSortedPlaces() {
+  const places = await fetchAvailablePlaces();
+
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const sortedPlaces = sortPlacesByDistance(
+        places,
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      resolve(sortedPlaces);
+    });
+  });
+}
+
+function AvailablePlaces() {
+  const {
+    isFetching,
+    error,
+    fetchData: availablePlaces,
+  } = useFetch(fetchSortedPlaces, []);
+}
+```
+
+💡 **Keuntungan:** Kita bisa mengurutkan data sebelum menggunakannya dalam komponen
+UI, tanpa mencampur logika sorting dalam komponen utama.
+
+---
+
+## ✅ Kesimpulan
+
+- **Custom hooks** memungkinkan kita membuat kode yang lebih modular dan reusable.
+- Dengan memahami aturan hooks dan menerapkan best practice, kita bisa meningkatkan
+  efisiensi pengembangan aplikasi React.
+- Contoh seperti `useFetch` dan `useLocalStorage` membantu kita memahami manfaat
+  praktis dari custom hooks dalam pengelolaan state dan efek samping.
+
+🔥 **Dengan menerapkan custom hooks, kode React kita menjadi lebih bersih, mudah
+dipelihara, dan scalable!**

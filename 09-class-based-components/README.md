@@ -373,3 +373,293 @@ masih penting untuk memahami class components karena mereka tetap digunakan dala
 proyek lama dan fitur spesifik seperti Error Boundaries. Dengan memahami konsep ini,
 Anda akan lebih siap untuk bekerja dengan berbagai kode React, baik yang lama maupun
 baru.
+
+---
+
+---
+
+---
+
+# React Class-Based Components
+
+## 📌 Apa itu Class-Based Components?
+
+React awalnya menggunakan **class-based components** sebelum diperkenalkannya Hooks
+di React 16.8. Meskipun sekarang kebanyakan pengembang menggunakan **functional
+components**, memahami class-based components tetap penting, terutama dalam kode lama
+atau fitur spesifik seperti **Error Boundaries**.
+
+## 📂 Struktur Folder
+
+```plaintext
+my-react-app/
+├── src/
+│   ├── components/
+│   │   ├── Counter.js
+│   │   ├── LifecycleExample.js
+│   │   ├── ErrorBoundary.js
+│   │   ├── UserFinder.js
+│   ├── store/
+│   │   ├── users-context.js
+│   ├── App.js
+│   ├── index.js
+│   ├── styles.css
+│
+├── package.json
+├── README.md
+```
+
+---
+
+## 🎯 Perbedaan Functional Components vs Class-Based Components
+
+### **Functional Components**
+
+```jsx
+function Product() {
+  return <h2>A Product!</h2>;
+}
+```
+
+### **Class-Based Components**
+
+```jsx
+import React, { Component } from 'react';
+
+class Product extends Component {
+  render() {
+    return <h2>A Product!</h2>;
+  }
+}
+```
+
+---
+
+## 🔥 Menggunakan State dalam Class Components
+
+State digunakan untuk menyimpan data yang bisa berubah seiring waktu.
+
+```jsx
+import React, { Component } from 'react';
+
+class Counter extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      count: 0,
+      showCount: false,
+    };
+  }
+
+  increment = () => {
+    this.setState({ count: this.state.count + 1 });
+  };
+
+  toggle = () => {
+    this.setState((curState) => ({ showCount: !curState.showCount }));
+  };
+
+  render() {
+    return (
+      <div>
+        {this.state.showCount && <p>Count: {this.state.count}</p>}
+        <button onClick={this.increment}>Increment</button>
+        <button onClick={this.toggle}>
+          {this.state.showCount ? 'Hide' : 'Show'} Count
+        </button>
+      </div>
+    );
+  }
+}
+
+export default Counter;
+```
+
+---
+
+## 🔄 Lifecycle Methods dalam Class Components
+
+Beberapa lifecycle methods yang umum digunakan:
+
+- `componentDidMount()` → Dipanggil setelah komponen dipasang.
+- `componentDidUpdate()` → Dipanggil setelah state atau props berubah.
+- `componentWillUnmount()` → Dipanggil sebelum komponen dihapus dari DOM.
+
+```jsx
+class LifecycleExample extends Component {
+  componentDidMount() {
+    console.log('Component mounted');
+  }
+
+  componentDidUpdate() {
+    console.log('Component updated');
+  }
+
+  componentWillUnmount() {
+    console.log('Component will unmount');
+  }
+
+  render() {
+    return <h1>Lifecycle Example</h1>;
+  }
+}
+```
+
+---
+
+## 🎭 Menggunakan Context dalam Class Components
+
+### 1️⃣ Membuat Context
+
+```jsx
+import React from 'react';
+
+const UsersContext = React.createContext({
+  users: [],
+});
+
+export default UsersContext;
+```
+
+### 2️⃣ Mengonfigurasi Context di `App.js`
+
+```jsx
+import UsersContext from './store/users-context';
+
+const DUMMY_USERS = [
+  { id: 'u1', name: 'Fachran' },
+  { id: 'u2', name: 'Sandi' },
+];
+
+function App() {
+  return (
+    <UsersContext.Provider value={{ users: DUMMY_USERS }}>
+      <UserFinder />
+    </UsersContext.Provider>
+  );
+}
+```
+
+### 3️⃣ Menggunakan Context dalam Class Component
+
+```jsx
+class UserFinder extends Component {
+  static contextType = UsersContext;
+
+  componentDidMount() {
+    this.setState({ filteredUsers: this.context.users });
+  }
+}
+```
+
+---
+
+## ⚠️ Error Boundaries
+
+Error Boundaries menangkap error dalam komponen anak agar aplikasi tidak crash.
+
+```jsx
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, info) {
+    console.error('Error caught:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Something went wrong.</h1>;
+    }
+    return this.props.children;
+  }
+}
+
+export default ErrorBoundary;
+```
+
+🔹 **Penggunaan:**
+
+```jsx
+<ErrorBoundary>
+  <BuggyComponent />
+</ErrorBoundary>
+```
+
+---
+
+## 🔄 Konversi Class Components ke Functional Components
+
+Dari **class component**:
+
+```jsx
+class Counter extends Component {
+  constructor() {
+    super();
+    this.state = { count: 0 };
+  }
+
+  increment = () => {
+    this.setState({ count: this.state.count + 1 });
+  };
+
+  render() {
+    return <button onClick={this.increment}>{this.state.count}</button>;
+  }
+}
+```
+
+Menjadi **functional component dengan Hooks**:
+
+```jsx
+import { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+}
+```
+
+---
+
+## 🛠️ Cara Menjalankan Proyek
+
+1️⃣ **Clone repo & masuk ke folder proyek**
+
+```sh
+git clone https://github.com/username/my-react-app.git
+cd my-react-app
+```
+
+2️⃣ **Install dependencies**
+
+```sh
+npm install
+```
+
+3️⃣ **Jalankan proyek**
+
+```sh
+npm start
+```
+
+Aplikasi akan berjalan di `http://localhost:3000`.
+
+---
+
+## 🚀 Kesimpulan
+
+✅ Class Components masih penting untuk proyek lama dan fitur tertentu (Error
+Boundaries).  
+✅ Lifecycle Methods membantu dalam mengontrol siklus hidup komponen.  
+✅ Context API bisa digunakan dalam Class Components dengan `static contextType`.  
+✅ **Error Boundaries** menangkap error agar UI tetap stabil.  
+✅ Untuk proyek baru, **Hooks lebih disarankan** karena lebih sederhana.
+
+---

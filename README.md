@@ -7,12 +7,12 @@
 3. ok
 4. ok
 5. ok
-6. mungkin ok
-7. useCallback() kurang jelas
-8.
-9.
-10.
-11.
+6. ok
+7. ok
+8. ok
+9. ok
+10. ok
+11. ok
 12. -
     - B
     - B(ADV)

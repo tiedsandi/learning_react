@@ -196,6 +196,174 @@ useEffect(() => {
 }, [fetchData]);
 ```
 
+# Panduan Lengkap `useCallback` di React
+
+## Apa itu `useCallback`?
+
+`useCallback` adalah hook bawaan React yang digunakan untuk **memosisikan (memoize)**
+sebuah fungsi agar tidak dibuat ulang setiap kali komponen dirender ulang. Ini sangat
+berguna dalam **dependency array** `useEffect` atau saat kita meneruskan fungsi
+sebagai **prop ke komponen anak**.
+
+---
+
+## 📌 Mengapa Menggunakan `useCallback`?
+
+Di React, setiap kali komponen dirender ulang, fungsi yang ada dalam komponen akan
+dibuat ulang. Hal ini bisa menyebabkan masalah dalam situasi tertentu:
+
+1. **Menghindari Eksekusi useEffect yang Tidak Perlu**  
+   Jika fungsi digunakan dalam **dependency array** `useEffect`, setiap kali fungsi
+   tersebut berubah, `useEffect` akan dipicu ulang, meskipun logikanya tidak berubah.
+
+2. **Mengoptimalkan Kinerja dalam Komponen Anak**  
+   Jika kita meneruskan fungsi sebagai **prop** ke komponen anak, komponen tersebut
+   akan dirender ulang setiap kali fungsi dianggap "berbeda", meskipun isinya tetap
+   sama.
+
+---
+
+## 📌 Sintaks Dasar `useCallback`
+
+```javascript
+const memoizedFunction = useCallback(() => {
+  // kode fungsi
+}, [dependencies]);
+```
+
+- **Tanpa dependency (`[]`)**: Fungsi hanya dibuat sekali saat pertama kali komponen
+  dirender.
+- **Dengan dependency (`[dependencies]`)**: Fungsi hanya dibuat ulang ketika salah
+  satu nilai di dependency array berubah.
+
+---
+
+## 📌 Contoh Penggunaan `useCallback`
+
+### **1️⃣ Menghindari Eksekusi `useEffect` yang Tidak Perlu**
+
+Tanpa `useCallback`, setiap kali komponen dirender ulang, fungsi `fetchData` akan
+dibuat ulang, yang menyebabkan `useEffect` berjalan berulang kali.
+
+**Tanpa `useCallback` (Bermasalah 🚨)**
+
+```javascript
+const fetchData = () => {
+  console.log('Fetching data...');
+};
+
+useEffect(() => {
+  fetchData();
+}, [fetchData]); // useEffect akan terus berjalan ulang di setiap render
+```
+
+**Dengan `useCallback` (Lebih Baik ✅)**
+
+```javascript
+const fetchData = useCallback(() => {
+  console.log('Fetching data...');
+}, []);
+
+useEffect(() => {
+  fetchData();
+}, [fetchData]); // useEffect hanya berjalan sekali
+```
+
+---
+
+### **2️⃣ Mengoptimalkan Kinerja dengan Komponen Anak**
+
+Jika kita meneruskan fungsi sebagai **prop** ke komponen anak tanpa `useCallback`,
+komponen anak akan dirender ulang setiap kali komponen induk dirender.
+
+**Tanpa `useCallback` (Bermasalah 🚨)**
+
+```javascript
+const Parent = () => {
+  const handleClick = () => {
+    console.log('Button clicked!');
+  };
+
+  return <Child onClick={handleClick} />;
+};
+
+const Child = React.memo(({ onClick }) => {
+  console.log('Child rendered');
+  return <button onClick={onClick}>Click me</button>;
+});
+```
+
+- `Child` akan selalu dirender ulang karena `handleClick` adalah fungsi baru di
+  setiap render.
+- Meskipun `Child` dibungkus dengan `React.memo`, fungsi yang berubah tetap
+  membuatnya dirender ulang.
+
+**Dengan `useCallback` (Lebih Optimal ✅)**
+
+```javascript
+const Parent = () => {
+  const handleClick = useCallback(() => {
+    console.log('Button clicked!');
+  }, []);
+
+  return <Child onClick={handleClick} />;
+};
+
+const Child = React.memo(({ onClick }) => {
+  console.log('Child rendered');
+  return <button onClick={onClick}>Click me</button>;
+});
+```
+
+- `handleClick` tidak akan berubah di setiap render.
+- `Child` tidak akan dirender ulang kecuali `onClick` benar-benar berubah.
+
+---
+
+### **3️⃣ Menggunakan `useCallback` dengan `useState`**
+
+Kadang kita butuh fungsi yang **mengubah state**, tapi tetap ingin fungsi tersebut
+tidak berubah di setiap render.
+
+```javascript
+const Counter = () => {
+  const [count, setCount] = useState(0);
+
+  const increment = useCallback(() => {
+    setCount((prev) => prev + 1);
+  }, []);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>Tambah</button>
+    </div>
+  );
+};
+```
+
+- `increment` tetap sama di setiap render, sehingga komponen tidak mengalami render
+  ulang yang tidak perlu.
+
+---
+
+## 📌 Kesimpulan: Kapan Harus Menggunakan `useCallback`?
+
+✅ **Gunakan `useCallback` jika:**
+
+- Fungsi digunakan dalam **dependency array** `useEffect` dan tidak ingin memicu
+  render ulang.
+- Fungsi diteruskan ke **komponen anak** agar tidak menyebabkan re-render.
+- Fungsi digunakan dalam **event handler** yang tidak boleh dibuat ulang setiap saat.
+
+❌ **Jangan gunakan `useCallback` jika:**
+
+- Fungsi tidak menyebabkan masalah re-render.
+- Fungsi sederhana dan hanya digunakan sekali dalam komponen.
+
+Menggunakan `useCallback` secara berlebihan justru bisa membuat kode lebih sulit
+dibaca tanpa manfaat nyata! 🚀
+
 ---
 
 ## Hal yang Perlu Diketahui tentang useEffect

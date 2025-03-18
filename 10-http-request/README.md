@@ -221,3 +221,254 @@ try {
 Dengan memahami cara melakukan HTTP Request di React, kita dapat dengan mudah
 menghubungkan frontend dengan backend untuk mengambil dan mengirim data. Gunakan
 `fetch()` atau pustaka seperti Axios untuk mempermudah pengelolaan data dari API.
+
+---
+
+---
+
+---
+
+# HTTP Requests di React
+
+## Pendahuluan
+
+Dalam pengembangan aplikasi web, HTTP request digunakan untuk mengirim dan menerima
+data dari backend atau database. React menyediakan beberapa metode untuk melakukan
+data fetching, baik menggunakan API bawaan seperti `fetch()` maupun pustaka eksternal
+seperti Axios.
+
+---
+
+## 1. Cara Menghubungkan Frontend ke Backend
+
+React tidak bisa langsung terhubung ke database karena berjalan di sisi klien
+(client-side). Untuk mengambil data dari database, React perlu berkomunikasi dengan
+backend melalui API. Backend ini bisa menggunakan berbagai teknologi seperti
+**Node.js + Express**, **Django**, **Spring Boot**, atau lainnya.
+
+### Contoh Backend dengan Express.js
+
+```javascript
+const express = require('express');
+const app = express();
+const cors = require('cors');
+
+app.use(cors());
+app.use(express.json());
+
+let data = [
+  { id: 1, title: 'Belajar React' },
+  { id: 2, title: 'Belajar HTTP Request' },
+];
+
+app.get('/api/posts', (req, res) => {
+  res.json(data);
+});
+
+app.listen(5000, () => console.log('Server berjalan di port 5000'));
+```
+
+---
+
+## 2. Fetching Data di React
+
+### a. Menggunakan Fetch API
+
+```jsx
+import React, { useState, useEffect } from 'react';
+
+const FetchData = () => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await fetch('http://localhost:5000/api/posts');
+      const resData = await response.json();
+      setData(resData);
+    }
+    fetchData();
+  }, []);
+
+  return (
+    <ul>
+      {data.map((item) => (
+        <li key={item.id}>{item.title}</li>
+      ))}
+    </ul>
+  );
+};
+
+export default FetchData;
+```
+
+### b. Menggunakan Axios
+
+```javascript
+import axios from 'axios';
+useEffect(() => {
+  axios
+    .get('http://localhost:5000/api/posts')
+    .then((response) => setData(response.data))
+    .catch((error) => console.error('Error:', error));
+}, []);
+```
+
+---
+
+## 3. Mengirim Data ke Backend (POST, PUT, DELETE)
+
+### a. POST Request dengan Fetch API
+
+```javascript
+const postData = async () => {
+  await fetch('http://localhost:5000/api/posts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: 'Postingan baru' }),
+  });
+};
+```
+
+### b. POST Request dengan Axios
+
+```javascript
+axios
+  .post('http://localhost:5000/api/posts', { title: 'Postingan baru' })
+  .then((response) => console.log(response.data))
+  .catch((error) => console.error(error));
+```
+
+---
+
+## 4. Keamanan dalam HTTP Requests
+
+### a. Menggunakan Token JWT untuk Autentikasi
+
+```javascript
+const login = async () => {
+  const response = await fetch('http://localhost:5000/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: 'user', password: 'pass' }),
+  });
+  const data = await response.json();
+  localStorage.setItem('token', data.token);
+};
+```
+
+### b. Menambahkan Token ke Header Request
+
+```javascript
+const fetchProtectedData = async () => {
+  const token = localStorage.getItem('token');
+  const response = await fetch('http://localhost:5000/protected', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json();
+  console.log(data);
+};
+```
+
+---
+
+## 5. Optimasi Data Fetching
+
+### a. Menggunakan React Query
+
+```javascript
+import { useQuery } from 'react-query';
+import axios from 'axios';
+
+const fetchPosts = async () => {
+  const response = await axios.get('http://localhost:5000/api/posts');
+  return response.data;
+};
+
+const PostList = () => {
+  const { data, isLoading, error } = useQuery('posts', fetchPosts);
+
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error fetching data</p>;
+
+  return (
+    <ul>
+      {data.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+};
+```
+
+### b. Implementasi Caching dengan SWR
+
+```javascript
+import useSWR from 'swr';
+import axios from 'axios';
+
+const fetcher = (url) => axios.get(url).then((res) => res.data);
+
+const Posts = () => {
+  const { data, error } = useSWR('http://localhost:5000/api/posts', fetcher);
+
+  if (error) return <p>Error loading data</p>;
+  if (!data) return <p>Loading...</p>;
+
+  return (
+    <ul>
+      {data.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+};
+```
+
+---
+
+## 6. Real-time Data dengan WebSockets
+
+### a. Implementasi WebSocket di Backend (Node.js + Socket.io)
+
+```javascript
+const io = require('socket.io')(5001, {
+  cors: { origin: '*' },
+});
+io.on('connection', (socket) => {
+  console.log('User connected');
+  socket.emit('message', 'Hello from server');
+});
+```
+
+### b. Implementasi WebSocket di React
+
+```javascript
+import { useEffect, useState } from 'react';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5001');
+
+const RealTimeComponent = () => {
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    socket.on('message', (data) => {
+      setMessage(data);
+    });
+  }, []);
+
+  return <p>{message}</p>;
+};
+```
+
+---
+
+## 7. Kesimpulan
+
+- **Gunakan `fetch()` atau Axios untuk HTTP request biasa.**
+- **Gunakan React Query atau SWR untuk caching dan optimasi.**
+- **Pastikan keamanan dengan autentikasi menggunakan JWT.**
+- **Gunakan WebSockets jika membutuhkan real-time data update.**
+
+Dengan mengikuti praktik ini, aplikasi React yang berkomunikasi dengan backend akan
+lebih cepat, aman, dan efisien!
