@@ -47,7 +47,7 @@ me-reload halaman.
 ```jsx
 function handleSubmit(event) {
   event.preventDefault();
-  console.log('submitted');
+  console.log("submitted");
 }
 
 <form onSubmit={handleSubmit}>
@@ -58,20 +58,20 @@ function handleSubmit(event) {
 ## Mengelola & Mendapatkan Input User dengan State
 
 ```jsx
-const [enteredEmail, setEnteredEmail] = useState('');
-const [enteredPassword, setEnteredPassword] = useState('');
+const [enteredEmail, setEnteredEmail] = useState("");
+const [enteredPassword, setEnteredPassword] = useState("");
 
 function handleSubmit(event) {
   event.preventDefault();
-  setEnteredEmail('');
-  setEnteredPassword('');
+  setEnteredEmail("");
+  setEnteredPassword("");
 }
 ```
 
 ## Generic Handler dan Reset Input
 
 ```jsx
-const [enteredValue, setEnteredValue] = useState({ email: '', password: '' });
+const [enteredValue, setEnteredValue] = useState({ email: "", password: "" });
 
 function handleValueChange(identifier, event) {
   setEnteredValue((prevState) => ({
@@ -90,8 +90,8 @@ const passwordRef = useRef();
 function handleSubmit(event) {
   event.preventDefault();
   console.log(emailRef.current.value, passwordRef.current.value);
-  emailRef.current.value = '';
-  passwordRef.current.value = '';
+  emailRef.current.value = "";
+  passwordRef.current.value = "";
 }
 ```
 
@@ -120,14 +120,14 @@ function handleSubmit(event) {
 
 ```jsx
 const emailIsInvalid =
-  enteredValue.email !== '' && !enteredValue.email.includes('@');
+  enteredValue.email !== "" && !enteredValue.email.includes("@");
 ```
 
 ### 2. Validasi dengan Lost Focus (onBlur)
 
 ```jsx
 const [didEdit, setDidEdit] = useState(false);
-const emailIsInvalid = didEdit && !enteredValue.email.includes('@');
+const emailIsInvalid = didEdit && !enteredValue.email.includes("@");
 ```
 
 ### 3. Validasi saat Submit
@@ -148,7 +148,7 @@ function handleSubmit(event) {
 ## Membuat Custom Hook untuk Mengelola Input
 
 ```jsx
-import { useState } from 'react';
+import { useState } from "react";
 
 export function useInput(defaultValue, validationFn) {
   const [value, setValue] = useState(defaultValue);
@@ -182,25 +182,25 @@ const {
   handleInputChange: handleEmailChange,
   handleInputBlur: handleEmailBlur,
   hasError: emailHasError,
-} = useInput('', (value) => isEmail(value) && isNotEmpty(value));
+} = useInput("", (value) => isEmail(value) && isNotEmpty(value));
 
 const {
   value: password,
   handleInputChange: handlePasswordChange,
   handleInputBlur: handlePasswordBlur,
   hasError: passwordHasError,
-} = useInput('', (value) => hasMinLength(value, 7) && isNotEmpty(value));
+} = useInput("", (value) => hasMinLength(value, 7) && isNotEmpty(value));
 ```
 
 ## Fungsi Validasi
 
 ```jsx
 export function isEmail(value) {
-  return value.includes('@');
+  return value.includes("@");
 }
 
 export function isNotEmpty(value) {
-  return value.trim() !== '';
+  return value.trim() !== "";
 }
 
 export function hasMinLength(value, minLength) {
@@ -249,11 +249,14 @@ ada 2 yaitu:
 
 #### kenapa ketika di tag form dan mengklik button, akan kerefresh halaman webnya?
 
-karena .... <br />
+karena secara default, tombol (`<button>`) di dalam elemen `<form>` memiliki
+`type="submit"`.  
+Sehingga, ketika tombol diklik, form akan dikirim (submit) dan menyebabkan halaman
+**refresh atau reload**.
 
 solusinya :
 
-1. kasih type butotn di button
+1. kasih type button di button
 
 ```jsx
 <button type="button" className="button" onClick={handleSubmit}>
@@ -267,7 +270,7 @@ solusinya :
 ```jsx
 function handleSubmit(event) {
   event.preventDefault();
-  console.log('submitted');
+  console.log("submitted");
 }
 
 <form onSubmit={hanldeSubmit}>
@@ -279,24 +282,24 @@ function handleSubmit(event) {
 #### Managing & Getting user input via state and reset it
 
 ```jsx
-const [enteredEmail, setEnteredEmail] = useState('');
-const [enteredPassword, setEnteredPassword] = useState('');
+const [enteredEmail, setEnteredEmail] = useState("");
+const [enteredPassword, setEnteredPassword] = useState("");
 
 function handleSubmit(event) {
   event.preventDefault();
 
   // how to reset
-  setEnteredEmail('');
-  setEnteredPassword('');
+  setEnteredEmail("");
+  setEnteredPassword("");
 }
 
 function handleEmailChange(event) {
   setEnteredEmail(event.target.value);
-  console.log('User Email: ' + enteredEmail);
+  console.log("User Email: " + enteredEmail);
 }
 function handlePasswordChange(event) {
   setEnteredPassword(event.target.value);
-  console.log('User Password: ' + enteredPassword);
+  console.log("User Password: " + enteredPassword);
 }
 
 <form onSubmit={handleSubmit}>
@@ -336,12 +339,12 @@ function handlePasswordChange(event) {
 #### Generic Handler and reset it
 
 ```jsx
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Login() {
   const [enteredValue, setEnteredValue] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   function handleSubmit(event) {
@@ -350,8 +353,8 @@ export default function Login() {
     console.log(enteredValue);
     // how to reset
     setEnteredValue({
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     });
   }
 
@@ -373,7 +376,7 @@ export default function Login() {
             id="email"
             type="email"
             name="email"
-            onChange={(event) => handleValueChange('email', event)}
+            onChange={(event) => handleValueChange("email", event)}
             value={enteredValue.email}
           />
         </div>
@@ -384,7 +387,7 @@ export default function Login() {
             id="password"
             type="password"
             name="password"
-            onChange={(event) => handleValueChange('password', event)}
+            onChange={(event) => handleValueChange("password", event)}
             value={enteredValue.password}
           />
         </div>
@@ -402,7 +405,7 @@ export default function Login() {
 #### getting user input via ref and reset it
 
 ```jsx
-import { useRef } from 'react';
+import { useRef } from "react";
 
 export default function Login() {
   const email = useRef();
@@ -416,8 +419,8 @@ export default function Login() {
 
     console.log(enteredEmail, enteredPassword);
 
-    email.current.value = '';
-    password.current.value = '';
+    email.current.value = "";
+    password.current.value = "";
   }
 
   return (
@@ -455,7 +458,7 @@ export default function Signup() {
     event.preventDefault();
 
     const fd = new FormData(event.target);
-    const acquisitionChanel = fd.getAll('acquisition');
+    const acquisitionChanel = fd.getAll("acquisition");
     const data = Object.fromEntries(fd.entries()); //
     data.acquisition = acquisitionChanel;
     console.log(data);
@@ -561,22 +564,22 @@ export default function Signup() {
 ### input validating
 
 > **documentaion** :
-> ![form validation](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Form_validation)
+> [form validation](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Form_validation)
 
 1. using keystroke
    > hanya untuk state
 
 ```jsx
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Login() {
   const [enteredValue, setEnteredValue] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const emailIsInvalid =
-    enteredValue.email !== '' && !enteredValue.email.includes('@');
+    enteredValue.email !== "" && !enteredValue.email.includes("@");
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -602,7 +605,7 @@ export default function Login() {
             id="email"
             type="email"
             name="email"
-            onChange={(event) => handleValueChange('email', event)}
+            onChange={(event) => handleValueChange("email", event)}
             value={enteredValue.email}
           />
           <div className="control-error">
@@ -616,7 +619,7 @@ export default function Login() {
             id="password"
             type="password"
             name="password"
-            onChange={(event) => handleValueChange('password', event)}
+            onChange={(event) => handleValueChange("password", event)}
             value={enteredValue.password}
           />
         </div>
@@ -635,12 +638,12 @@ export default function Login() {
    > onBlur
 
 ```jsx
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Login() {
   const [enteredValue, setEnteredValue] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const [didEdit, setDidEdit] = useState({
@@ -648,7 +651,7 @@ export default function Login() {
     password: false,
   });
 
-  const emailIsInvalid = didEdit.email && !enteredValue.email.includes('@');
+  const emailIsInvalid = didEdit.email && !enteredValue.email.includes("@");
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -685,8 +688,8 @@ export default function Login() {
             id="email"
             type="email"
             name="email"
-            onBlur={() => hanldeInputBlur('email')}
-            onChange={(event) => handleValueChange('email', event)}
+            onBlur={() => hanldeInputBlur("email")}
+            onChange={(event) => handleValueChange("email", event)}
             value={enteredValue.email}
           />
           <div className="control-error">
@@ -700,7 +703,7 @@ export default function Login() {
             id="password"
             type="password"
             name="password"
-            onChange={(event) => handleValueChange('password', event)}
+            onChange={(event) => handleValueChange("password", event)}
             value={enteredValue.password}
           />
         </div>
@@ -720,11 +723,11 @@ export default function Login() {
 ```jsx
 const [enteredValue, setEnteredValue] = useState({
   email: {
-    value: '',
+    value: "",
     isEdit: false,
   },
   password: {
-    value: '',
+    value: "",
     isEdit: false,
   },
 });
@@ -746,4 +749,8 @@ function handleSubmit(event) {
 }
 ```
 
-4. using thrid-party from libraries </br> ada formik, dan react hookform
+4. **Menggunakan Library Pihak Ketiga**  
+   Ada beberapa library populer untuk menangani form dengan lebih baik, seperti:
+   - **Formik**: Memudahkan pengelolaan state dan validasi form dalam React.
+   - **React Hook Form**: Library ringan dan efisien untuk menangani form berbasis
+     hooks.
