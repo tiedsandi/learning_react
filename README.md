@@ -13,7 +13,7 @@
 9. ok
 10. ok
 11. ok
-12. -
+12. - ok
     - B
     - B(ADV)
 13.
@@ -21,7 +21,7 @@
 15.
 
 <!-- course tambahan -->
-
+<!--
 ###### db(firebase, mongodb, postgres sql, oracle, sqlite)
 
 ###### backend(nodejs,express, golang);
@@ -32,4 +32,4 @@
 
 ###### android (react native)
 
-###### docker, ai, microservices
+###### docker, ai, microservices -->
