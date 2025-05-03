@@ -11,3 +11,5 @@
 ## Pahami Lazy Loading
 
 ### Contoh Lazy loading
+
+## npm run build
