@@ -36,7 +36,10 @@ export default function NewChallenge({ onDone }) {
     ) {
       animate(
         "input,textarea",
-        { x: [-10, 0, 10, 0], scale: [0.4, 1] },
+        {
+          x: [-10, 0, 10, 0],
+          // scale: [0.4, 1]
+        },
         { type: "tween", duration: 0.5, delay: stagger(0.05) }
       );
       return;
