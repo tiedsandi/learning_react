@@ -1,29 +1,22 @@
-import { useContext } from 'react';
+import { useContext } from "react";
 
-import { ChallengesContext } from '../store/challenges-context.jsx';
+import { ChallengesContext } from "../store/challenges-context.jsx";
 
-export default function ChallengeItem({
-  challenge,
-  onViewDetails,
-  isExpanded,
-}) {
+export default function ChallengeItem({ challenge, onViewDetails, isExpanded }) {
   const { updateChallengeStatus } = useContext(ChallengesContext);
 
-  const formattedDate = new Date(challenge.deadline).toLocaleDateString(
-    'en-US',
-    {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }
-  );
+  const formattedDate = new Date(challenge.deadline).toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 
   function handleCancel() {
-    updateChallengeStatus(challenge.id, 'failed');
+    updateChallengeStatus(challenge.id, "failed");
   }
 
   function handleComplete() {
-    updateChallengeStatus(challenge.id, 'completed');
+    updateChallengeStatus(challenge.id, "completed");
   }
 
   return (
@@ -42,19 +35,17 @@ export default function ChallengeItem({
             </p>
           </div>
         </header>
-        <div className="challenge-item-details">
+        <div className={`challenge-item-details ${isExpanded ? "expanded" : ""}`}>
           <p>
             <button onClick={onViewDetails}>
-              View Details{' '}
+              View Details{" "}
               <span className="challenge-item-details-icon">&#9650;</span>
             </button>
           </p>
 
           {isExpanded && (
             <div>
-              <p className="challenge-item-description">
-                {challenge.description}
-              </p>
+              <p className="challenge-item-description">{challenge.description}</p>
             </div>
           )}
         </div>
