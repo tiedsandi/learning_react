@@ -33,7 +33,7 @@ describe("Greeting Compnents", () => {
     expect(outPutelement).toBeInTheDocument();
   });
 
-  test('does not render "It \' s good to see you" if the butotn not on click', () => {
+  test('does not render "It\'s good to see you" if the butotn not on click', () => {
     render(<Greeting />);
 
     const buttonElement = screen.getByRole("button");
